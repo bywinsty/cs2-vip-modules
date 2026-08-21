@@ -56,6 +56,7 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
         self.assertIn("gh release create", self.release_job)
         self.assertIn("--prerelease", self.release_job)
         self.assertIn("gh release edit", self.release_job)
+        self.assertIn('--target "$GITHUB_SHA"', self.release_job)
         self.assertIn("--draft=false", self.release_job)
 
     def test_release_notes_follow_current_commit(self):
@@ -78,15 +79,11 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
 
     def test_combined_archive_contains_nested_modules_archive(self):
         package_job = self.workflow.split("  package-release:", 1)[1].split("  build-summary:", 1)[0]
-        self.assertIn(
-            'tar -czf "$GITHUB_WORKSPACE/release/Modules.tar.gz" VIP_*.tar.gz',
-            package_job,
-        )
+        self.assertIn("--output release/Modules.tar.gz", package_job)
+        self.assertIn("create_reproducible_archive.py", package_job)
         self.assertIn("cp release/Modules.tar.gz combined-root/Modules.tar.gz", package_job)
-        self.assertIn(
-            "tar -czf release/VIP_All_Modules.tar.gz -C combined-root addons Modules.tar.gz",
-            package_job,
-        )
+        self.assertIn("--output release/VIP_All_Modules.tar.gz", package_job)
+        self.assertIn("cmp release/VIP_All_Modules.tar.gz release/VIP_All_Modules.repro.tar.gz", package_job)
         self.assertIn("expected_module_archives", package_job)
         self.assertIn(
             'validate_members(modules_archive, expected_module_archives, set(), "Modules.tar.gz")',

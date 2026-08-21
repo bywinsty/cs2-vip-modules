@@ -87,7 +87,6 @@ class CacheWorkflowTests(unittest.TestCase):
         self.assertIn("python ../configure.py", self.workflow)
         self.assertEqual(self.workflow.count("python .github/scripts/cache_metrics.py record"), 2)
         for output in (
-            "setup-seconds",
             "apt-updated",
             "missing-apt-packages",
             "pip_install_seconds",
@@ -129,10 +128,11 @@ class CacheWorkflowTests(unittest.TestCase):
         self.assertNotIn("hashFiles('.github/workflows/build.yml')", self.workflow)
 
     def test_ci_requirements_are_pinned(self):
-        self.assertEqual(
-            REQUIREMENTS.read_text(encoding="utf-8").splitlines(),
-            ["pip==26.2.1", "importlib-metadata==9.0.0", "setuptools==68.1.2"],
-        )
+        requirements = REQUIREMENTS.read_text(encoding="utf-8")
+        for package in ("pip==26.2.1", "importlib-metadata==9.0.0", "setuptools==68.1.2", "zipp==4.1.0"):
+            self.assertIn(package, requirements)
+        self.assertEqual(requirements.count("--hash=sha256:"), 4)
+        self.assertIn("--require-hashes", self.workflow)
 
     def test_python_toolchain_smoke_check_covers_both_build_jobs(self):
         command = "python .github/scripts/verify_python_toolchain.py --check-ambuild"

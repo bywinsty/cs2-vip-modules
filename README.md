@@ -1,6 +1,9 @@
 [EN](https://github.com/bywinsty/cs2-vip-modules/blob/Modules/README.md) | [UA](https://github.com/bywinsty/cs2-vip-modules/blob/Modules/README-UA.md) | [RU](https://github.com/bywinsty/cs2-vip-modules/blob/Modules/README-RU.md)
 
 # [VIP] [Modules](https://github.com/bywinsty/cs2-vip-modules) for [VIP] [Core](https://github.com/bywinsty/cs2-vip)
+
+See [BUILDING.md](BUILDING.md) for the supported clean Linux x86-64 build.
+
 ## Requirements:
 - A Linux x86-64 CS2 server; Windows builds are not currently published or supported.
 - [Metamod:Source](https://www.sourcemm.net/downloads.php?branch=master&all=1).
