@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Penis](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Penis)
+# [VIP] [Penis](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Penis)
 
 ## Adds a penis in the groin crotch of VIP players
 

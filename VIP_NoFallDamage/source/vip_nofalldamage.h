@@ -11,7 +11,7 @@
 #include "CCSPlayerController.h"
 #include "ctakedamageinfo.h"
 #include "iserver.h"
-#include "include/vip.h"
+#include "vip.h"
 #include "include/menus.h"
 
 class NoFallDamageModule : public ISmmPlugin, public IMetamodListener

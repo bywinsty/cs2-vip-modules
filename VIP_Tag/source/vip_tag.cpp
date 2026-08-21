@@ -197,7 +197,7 @@ void VIPTag::AllPluginsLoaded()
 
 bool VIPTag::Unload(char *error, size_t maxlen)
 {
-	delete g_pVIPCore;
+	g_pVIPCore = nullptr;
 	return true;
 }
 
@@ -213,7 +213,7 @@ const char *VIPTag::GetVersion()
 
 const char *VIPTag::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *VIPTag::GetLogTag()

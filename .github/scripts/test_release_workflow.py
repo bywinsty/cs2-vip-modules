@@ -18,48 +18,54 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
 
     def test_push_and_pull_request_branches(self):
         self.assertIn(
-            "push:\n    branches:\n      - main\n      - PR\n      - dev",
+            "push:\n    branches:\n      - Modules\n      - dev",
             self.workflow,
         )
         self.assertIn(
-            "pull_request:\n    branches:\n      - main",
+            "pull_request:\n    branches:\n      - Modules",
             self.workflow,
         )
         self.assertNotIn("branches: [dev]", self.workflow)
 
-    def test_release_runs_only_after_successful_main_push(self):
+    def test_release_runs_only_after_successful_channel_push(self):
         self.assertIn("needs: [discover, build-summary]", self.release_job)
         self.assertIn("github.event_name == 'push'", self.release_job)
-        self.assertIn("github.ref == 'refs/heads/main'", self.release_job)
+        self.assertIn("github.ref_name == 'Modules'", self.release_job)
+        self.assertIn("github.ref_name == 'dev'", self.release_job)
+        self.assertIn("vars.RUNTIME_VALIDATION_SHA == github.sha", self.release_job)
+        self.assertIn("vars.RUNTIME_VALIDATION_REPORT_URL != ''", self.release_job)
         self.assertIn("needs.discover.result == 'success'", self.release_job)
         self.assertIn("needs.build-summary.result == 'success'", self.release_job)
         self.assertNotIn("github.event_name == 'pull_request'", self.release_job)
-        self.assertNotIn("github.ref == 'refs/heads/dev'", self.release_job)
         self.assertNotIn("workflow_dispatch", self.release_job)
 
     def test_release_permissions_and_serialization(self):
         self.assertEqual(self.workflow.count("contents: write"), 1)
+        self.assertEqual(self.workflow.count("id-token: write"), 1)
+        self.assertEqual(self.workflow.count("attestations: write"), 1)
         self.assertIn("permissions:\n      contents: write", self.release_job)
         self.assertIn("GH_TOKEN: ${{ github.token }}", self.release_job)
         self.assertIn("concurrency:", self.release_job)
-        self.assertIn("group: release-1.0-bywinsty", self.release_job)
+        self.assertIn("group: release-${{ github.ref_name }}", self.release_job)
         self.assertIn("cancel-in-progress: false", self.release_job)
 
-    def test_tag_release_and_main_tip_guard(self):
-        self.assertIn("RELEASE_TAG: 1.0-bywinsty", self.release_job)
-        self.assertIn("RELEASE_TITLE: 1.0-bywinsty", self.release_job)
-        self.assertIn("git/ref/heads/main", self.release_job)
+    def test_tag_release_and_branch_tip_guard(self):
+        self.assertIn("github.ref_name == 'Modules' && '1.0-bywinsty' || 'dev'", self.release_job)
+        self.assertIn("IS_PRERELEASE: ${{ github.ref_name == 'dev' }}", self.release_job)
+        self.assertIn("git/ref/heads/$GITHUB_REF_NAME", self.release_job)
         self.assertIn("refs/tags/$RELEASE_TAG", self.release_job)
         self.assertIn("force=true", self.release_job)
-        self.assertIn('gh release delete "$RELEASE_TAG"', self.release_job)
+        self.assertNotIn('gh release delete "$RELEASE_TAG"', self.release_job)
         self.assertNotIn("--cleanup-tag", self.release_job)
         self.assertIn("gh release create", self.release_job)
-        self.assertIn("--draft", self.release_job)
+        self.assertIn("--prerelease", self.release_job)
         self.assertIn("gh release edit", self.release_job)
+        self.assertIn('--target "$GITHUB_SHA"', self.release_job)
         self.assertIn("--draft=false", self.release_job)
 
     def test_release_notes_follow_current_commit(self):
-        self.assertIn("Automated release from main.", self.release_job)
+        self.assertIn("Automated release from ", self.release_job)
+        self.assertIn("$GITHUB_REF_NAME", self.release_job)
         self.assertIn("$GITHUB_SHA", self.release_job)
         self.assertIn("$GITHUB_RUN_ID", self.release_job)
 
@@ -70,22 +76,23 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
         self.assertIn('expected.add("VIP_Modules.tar.gz")', self.release_job)
         self.assertIn("if len(actual) != 37", self.release_job)
         self.assertIn("35 module archives and both combined archive names", self.release_job)
+        self.assertIn("VIP_All_Modules.spdx.json", self.release_job)
+        self.assertIn("actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d", self.release_job)
+        self.assertIn("sbom-path: release-assets/VIP_All_Modules.spdx.json", self.release_job)
+        self.assertIn("gh attestation verify", self.release_job)
+        self.assertIn("verify_spdx_subject.py", self.release_job)
         self.assertIn("gh release upload", self.release_job)
         self.assertIn("--clobber", self.release_job)
         self.assertIn("Verify release assets", self.release_job)
-        self.assertIn('test "${#actual[@]}" -eq 37', self.release_job)
+        self.assertIn('test "${#actual[@]}" -eq 38', self.release_job)
 
     def test_combined_archive_contains_nested_modules_archive(self):
         package_job = self.workflow.split("  package-release:", 1)[1].split("  build-summary:", 1)[0]
-        self.assertIn(
-            'tar -czf "$GITHUB_WORKSPACE/release/Modules.tar.gz" VIP_*.tar.gz',
-            package_job,
-        )
+        self.assertIn("--output release/Modules.tar.gz", package_job)
+        self.assertIn("create_reproducible_archive.py", package_job)
         self.assertIn("cp release/Modules.tar.gz combined-root/Modules.tar.gz", package_job)
-        self.assertIn(
-            "tar -czf release/VIP_All_Modules.tar.gz -C combined-root addons Modules.tar.gz",
-            package_job,
-        )
+        self.assertIn("--output release/VIP_All_Modules.tar.gz", package_job)
+        self.assertIn("cmp release/VIP_All_Modules.tar.gz release/VIP_All_Modules.repro.tar.gz", package_job)
         self.assertIn("expected_module_archives", package_job)
         self.assertIn(
             'validate_members(modules_archive, expected_module_archives, set(), "Modules.tar.gz")',
@@ -115,6 +122,12 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
     def test_legacy_combined_archive_is_uploaded(self):
         self.assertIn("path: release/VIP_All_Modules.tar.gz", self.workflow)
         self.assertIn("path: release/VIP_Modules.tar.gz", self.workflow)
+
+    def test_actions_artifacts_use_standard_zip_transport(self):
+        self.assertNotIn("archive: false", self.workflow)
+        self.assertNotIn("retention-days: 14", self.workflow)
+        self.assertIn("name: ${{ matrix.module }}.tar.gz", self.workflow)
+        self.assertIn("name: VIP_All_Modules.tar.gz", self.workflow)
 
 
 if __name__ == "__main__":

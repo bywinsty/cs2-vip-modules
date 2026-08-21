@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Respawn](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Respawn)
+# [VIP] [Respawn](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Respawn)
 
 ## Добавляет VIP-игрокам возможность возрождаться.
 

@@ -26,8 +26,8 @@ bool VIPResetDeaths::Load(PluginId id, ISmmAPI* ismm, char* error, size_t maxlen
 
 bool VIPResetDeaths::Unload(char* error, size_t maxlen)
 {
-	delete g_pVIPCore;
-	delete g_pUtils;
+	g_pVIPCore = nullptr;
+	g_pUtils = nullptr;
 	return true;
 }
 
@@ -154,7 +154,7 @@ const char* VIPResetDeaths::GetVersion()
 
 const char* VIPResetDeaths::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char* VIPResetDeaths::GetLogTag()

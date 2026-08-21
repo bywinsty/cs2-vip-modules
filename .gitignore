@@ -1,0 +1,15 @@
+build/
+**/build/
+**/build-*/
+cache-metrics/
+cache-metrics-summary.json
+module-archives/
+combined-root/
+release/
+release-assets/
+info/
+__pycache__/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.cache/

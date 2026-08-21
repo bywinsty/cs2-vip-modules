@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Show Damage](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_ShowDamage)
+# [VIP] [Show Damage](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_ShowDamage)
 
 ## Позволяет VIP-игрокам видеть информацию о нанесённом уроне.
 

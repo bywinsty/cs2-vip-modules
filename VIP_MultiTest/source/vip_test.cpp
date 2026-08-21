@@ -9,6 +9,11 @@ IMenusApi* g_pMenus;
 
 IVEngineServer2* engine = nullptr;
 
+CGameEntitySystem* GameEntitySystem()
+{
+	return g_pUtils->GetCGameEntitySystem();
+}
+
 int g_iType;
 
 struct VIPData
@@ -178,7 +183,7 @@ const char *vip_test::GetVersion()
 
 const char *vip_test::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_test::GetLogTag()

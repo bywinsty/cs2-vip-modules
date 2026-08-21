@@ -2,13 +2,11 @@ name: Build VIP Modules
 on:
   push:
     branches:
-      - main
-      - PR
+      - Modules
       - dev
   pull_request:
     branches:
-      - main
-      - PR
+      - Modules
   workflow_dispatch:
 
 permissions:
@@ -20,6 +18,7 @@ env:
   HL2SDK_REF: 80cf8554d716a3841fe0680013cae3411a056a8d
   SCHEMAENTITY_REF: e7965b3c83ec684d44584ee6457c5482ee5d9db1
   MANIFEST_REF: 20b3a014264b38908c4a5d4eb263ba2c488f3dc1
+  VIP_CORE_REF: 65b0934bec8bbc571ee5be996d2643d75851785b
   CACHE_VERSION: v2
 
 jobs:
@@ -52,42 +51,30 @@ jobs:
         run: python3 .github/scripts/test_release_workflow.py
       - name: Test documentation links
         run: python3 .github/scripts/test_documentation_links.py
+      - name: Check canonical module build files
+        run: python3 .github/scripts/sync_build_files.py
+      - name: Test reproducible archive helper
+        run: python3 .github/scripts/test_reproducible_archive.py
+      - name: Test SPDX SBOM generator
+        run: python3 .github/scripts/test_generate_spdx_sbom.py
+      - name: Test runtime harness safety
+        run: python3 .github/scripts/test_runtime_validate.py
+      - name: Verify vendored VIP SDK against pinned core
+        run: |
+          core_root="$RUNNER_TEMP/cs2-vip-core"
+          git clone --filter=blob:none --no-checkout https://github.com/bywinsty/cs2-vip.git "$core_root"
+          git -C "$core_root" fetch --depth 1 origin "$VIP_CORE_REF"
+          git -C "$core_root" checkout --detach "$VIP_CORE_REF"
+          test "$(git -C "$core_root" rev-parse HEAD)" = "$VIP_CORE_REF"
+          python3 .github/scripts/verify_vip_sdk.py --core-root "$core_root"
       - id: manifest_contract
         name: Validate package manifest contract
         run: python3 .github/scripts/manifest_contract.py --manifest .github/package-manifest.json --github-output "$GITHUB_OUTPUT"
       - id: discover
-        run: |
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          root = Path.cwd()
-          required = ["AMBuildScript", "AMBuilder", "PackageScript", "configure.py", "hl2sdk-manifests/SdkHelpers.ambuild", "hl2sdk-manifests/manifests/cs2.json"]
-          entries = []
-          for module_dir in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")):
-              build_root = next((p for p in (module_dir, module_dir / "source", module_dir / "src") if (p / "AMBuildScript").is_file()), None)
-              if build_root is None:
-                  continue
-              missing = [item for item in required if not (build_root / item).is_file()]
-              if missing:
-                  raise SystemExit(f"{module_dir.name}: missing build files: {missing}")
-              entries.append({"module": module_dir.name, "module_dir": module_dir.relative_to(root).as_posix(), "build_root": build_root.relative_to(root).as_posix()})
-          manifest = json.loads((root / ".github/package-manifest.json").read_text(encoding="utf-8"))["packages"]
-          discovered = {entry["module"] for entry in entries}
-          manifest_modules = set(manifest)
-          if discovered != manifest_modules:
-              missing = sorted(manifest_modules - discovered)
-              extra = sorted(discovered - manifest_modules)
-              raise SystemExit(f"module/manifest mismatch; missing={missing}, extra={extra}")
-          manifest_paths = [path for package in manifest.values() for path in package["files"]]
-          if len(manifest_paths) != len(set(manifest_paths)):
-              raise SystemExit("package manifest contains duplicate file paths")
-
-          if len(entries) != len(manifest):
-              raise SystemExit(f"expected {len(manifest)} modules from package manifest, found {len(entries)}")
-          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
-              out.write("modules=" + json.dumps(entries, separators=(",", ":")) + "\n")
-              out.write(f"count={len(entries)}\n")
-          PY
+        run: >-
+          python3 .github/scripts/discover_modules.py
+          --manifest .github/package-manifest.json
+          --github-output "$GITHUB_OUTPUT"
 
   prepare-dependencies:
     runs-on: ubuntu-24.04
@@ -96,6 +83,8 @@ jobs:
       pip-cache-hit: ${{ steps.restore-pip.outputs.cache-hit }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Initialize temporary dependency paths
+        run: echo "DEPS_ROOT=$RUNNER_TEMP/vip-dependencies" >> "$GITHUB_ENV"
       - name: Prepare build tools
         id: prepare-build-tools
         uses: ./.github/actions/prepare-build-tools
@@ -108,10 +97,10 @@ jobs:
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
-            ambuild
-            external/metamod-source
-            external/hl2sdk-cs2
-            external/SchemaEntity
+            ${{ runner.temp }}/vip-dependencies/ambuild
+            ${{ runner.temp }}/vip-dependencies/external/metamod-source
+            ${{ runner.temp }}/vip-dependencies/external/hl2sdk-cs2
+            ${{ runner.temp }}/vip-dependencies/external/SchemaEntity
           key: ${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ runner.arch }}-ubuntu24.04-${{ env.AMBUILD_REF }}-${{ env.MMS_REF }}-${{ env.HL2SDK_REF }}-${{ env.SCHEMAENTITY_REF }}-${{ env.MANIFEST_REF }}
       - name: Restore pip cache
         id: restore-pip
@@ -130,7 +119,7 @@ jobs:
         id: install-ci-dependencies
         run: |
           start_time=$(date +%s)
-          python -m pip install --upgrade -r "$GITHUB_WORKSPACE/.github/ci-requirements.txt"
+          python -m pip install --require-hashes -r "$GITHUB_WORKSPACE/.github/ci-requirements.txt"
           pip_install_seconds=$(( $(date +%s) - start_time ))
           echo "pip_install_seconds=$pip_install_seconds" >> "$GITHUB_OUTPUT"
           echo "install_dependencies_seconds=$pip_install_seconds" >> "$GITHUB_STEP_SUMMARY"
@@ -139,36 +128,36 @@ jobs:
         if: steps.restore-dependencies.outputs.cache-hit != 'true'
         run: |
           start_time=$(date +%s)
-          mkdir -p "$GITHUB_WORKSPACE/external"
-          git clone --depth 1 --no-checkout https://github.com/alliedmodders/ambuild.git "$GITHUB_WORKSPACE/ambuild"
-          git -C "$GITHUB_WORKSPACE/ambuild" fetch --depth 1 origin "$AMBUILD_REF"
-          git -C "$GITHUB_WORKSPACE/ambuild" checkout --detach "$AMBUILD_REF"
-          git clone --depth 1 --no-checkout https://github.com/alliedmodders/metamod-source.git "$GITHUB_WORKSPACE/external/metamod-source"
-          git -C "$GITHUB_WORKSPACE/external/metamod-source" fetch --depth 1 origin "$MMS_REF"
-          git -C "$GITHUB_WORKSPACE/external/metamod-source" checkout --detach "$MMS_REF"
-          git -C "$GITHUB_WORKSPACE/external/metamod-source" submodule update --init --recursive
-          git clone --depth 1 --no-checkout https://github.com/alliedmodders/hl2sdk.git "$GITHUB_WORKSPACE/external/hl2sdk-cs2"
-          git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" fetch --depth 1 origin "$HL2SDK_REF"
-          git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" checkout --detach "$HL2SDK_REF"
-          git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" submodule update --init --recursive
-          schema_root="$GITHUB_WORKSPACE/external/SchemaEntity"
+          mkdir -p "$DEPS_ROOT/external"
+          git clone --depth 1 --no-checkout https://github.com/alliedmodders/ambuild.git "$DEPS_ROOT/ambuild"
+          git -C "$DEPS_ROOT/ambuild" fetch --depth 1 origin "$AMBUILD_REF"
+          git -C "$DEPS_ROOT/ambuild" checkout --detach "$AMBUILD_REF"
+          git clone --depth 1 --no-checkout https://github.com/alliedmodders/metamod-source.git "$DEPS_ROOT/external/metamod-source"
+          git -C "$DEPS_ROOT/external/metamod-source" fetch --depth 1 origin "$MMS_REF"
+          git -C "$DEPS_ROOT/external/metamod-source" checkout --detach "$MMS_REF"
+          git -C "$DEPS_ROOT/external/metamod-source" submodule update --init --recursive
+          git clone --depth 1 --no-checkout https://github.com/alliedmodders/hl2sdk.git "$DEPS_ROOT/external/hl2sdk-cs2"
+          git -C "$DEPS_ROOT/external/hl2sdk-cs2" fetch --depth 1 origin "$HL2SDK_REF"
+          git -C "$DEPS_ROOT/external/hl2sdk-cs2" checkout --detach "$HL2SDK_REF"
+          git -C "$DEPS_ROOT/external/hl2sdk-cs2" submodule update --init --recursive
+          schema_root="$DEPS_ROOT/external/SchemaEntity"
           git clone --depth 1 --no-checkout https://github.com/pisex/SchemaEntity.git "$schema_root"
           git -C "$schema_root" fetch --depth 1 origin "$SCHEMAENTITY_REF"
           git -C "$schema_root" checkout --detach "$SCHEMAENTITY_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/ambuild" rev-parse HEAD)" = "$AMBUILD_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/metamod-source" rev-parse HEAD)" = "$MMS_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/metamod-source/hl2sdk-manifests" rev-parse HEAD)" = "$MANIFEST_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" rev-parse HEAD)" = "$HL2SDK_REF"
+          test "$(git -C "$DEPS_ROOT/ambuild" rev-parse HEAD)" = "$AMBUILD_REF"
+          test "$(git -C "$DEPS_ROOT/external/metamod-source" rev-parse HEAD)" = "$MMS_REF"
+          test "$(git -C "$DEPS_ROOT/external/metamod-source/hl2sdk-manifests" rev-parse HEAD)" = "$MANIFEST_REF"
+          test "$(git -C "$DEPS_ROOT/external/hl2sdk-cs2" rev-parse HEAD)" = "$HL2SDK_REF"
           test "$(git -C "$schema_root" rev-parse HEAD)" = "$SCHEMAENTITY_REF"
           echo "prepare_pristine_dependencies_seconds=$(( $(date +%s) - start_time ))" >> "$GITHUB_STEP_SUMMARY"
       - name: Validate cached pinned dependencies
         if: steps.restore-dependencies.outputs.cache-hit == 'true'
         run: |
-          schema_root="$GITHUB_WORKSPACE/external/SchemaEntity"
-          test "$(git -C "$GITHUB_WORKSPACE/ambuild" rev-parse HEAD)" = "$AMBUILD_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/metamod-source" rev-parse HEAD)" = "$MMS_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/metamod-source/hl2sdk-manifests" rev-parse HEAD)" = "$MANIFEST_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" rev-parse HEAD)" = "$HL2SDK_REF"
+          schema_root="$DEPS_ROOT/external/SchemaEntity"
+          test "$(git -C "$DEPS_ROOT/ambuild" rev-parse HEAD)" = "$AMBUILD_REF"
+          test "$(git -C "$DEPS_ROOT/external/metamod-source" rev-parse HEAD)" = "$MMS_REF"
+          test "$(git -C "$DEPS_ROOT/external/metamod-source/hl2sdk-manifests" rev-parse HEAD)" = "$MANIFEST_REF"
+          test "$(git -C "$DEPS_ROOT/external/hl2sdk-cs2" rev-parse HEAD)" = "$HL2SDK_REF"
           test "$(git -C "$schema_root" rev-parse HEAD)" = "$SCHEMAENTITY_REF"
       - name: Save pristine pinned dependency cache
         id: save-dependencies
@@ -177,14 +166,14 @@ jobs:
         uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
-            ambuild
-            external/metamod-source
-            external/hl2sdk-cs2
-            external/SchemaEntity
+            ${{ runner.temp }}/vip-dependencies/ambuild
+            ${{ runner.temp }}/vip-dependencies/external/metamod-source
+            ${{ runner.temp }}/vip-dependencies/external/hl2sdk-cs2
+            ${{ runner.temp }}/vip-dependencies/external/SchemaEntity
           key: ${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ runner.arch }}-ubuntu24.04-${{ env.AMBUILD_REF }}-${{ env.MMS_REF }}-${{ env.HL2SDK_REF }}-${{ env.SCHEMAENTITY_REF }}-${{ env.MANIFEST_REF }}
       - name: Install pinned AMBuild
         if: steps.restore-dependencies.outputs.cache-hit == 'true' || steps.prepare.outcome == 'success'
-        run: python -m pip install "$GITHUB_WORKSPACE/ambuild"
+        run: python -m pip install "$DEPS_ROOT/ambuild"
       - name: Verify Python packaging toolchain
         run: python .github/scripts/verify_python_toolchain.py --check-ambuild
       - name: Save pip cache
@@ -211,7 +200,6 @@ jobs:
           PIP_RESTORE_OUTCOME: ${{ steps.restore-pip.outcome }}
           PIP_SAVE_OUTCOME: ${{ steps.save-pip.outcome }}
           EVENT_NAME: ${{ github.event_name }}
-          SYSTEM_SETUP_SECONDS: ${{ steps.prepare-build-tools.outputs.setup-seconds }}
           APT_UPDATED: ${{ steps.prepare-build-tools.outputs.apt-updated }}
           MISSING_APT_PACKAGES: ${{ steps.prepare-build-tools.outputs.missing-apt-packages }}
           PIP_INSTALL_SECONDS: ${{ steps.install-ci-dependencies.outputs.pip_install_seconds }}
@@ -268,7 +256,6 @@ jobs:
           PIP_CACHE_SAVE_OUTCOME: ${{ steps.save-pip.outcome }}
           CACHE_RESTORE_STARTED_AT: ${{ steps.cache-restore-start.outputs.started_at }}
           CACHE_RESTORE_FINISHED_AT: ${{ steps.cache-restore-finish.outputs.finished_at }}
-          SYSTEM_SETUP_SECONDS: ${{ steps.prepare-build-tools.outputs.setup-seconds }}
           APT_UPDATED: ${{ steps.prepare-build-tools.outputs.apt-updated }}
           MISSING_APT_PACKAGES: ${{ steps.prepare-build-tools.outputs.missing-apt-packages }}
           PIP_INSTALL_SECONDS: ${{ steps.install-ci-dependencies.outputs.pip_install_seconds }}
@@ -286,7 +273,7 @@ jobs:
           path: cache-metrics/prepare-dependencies.json
           archive: true
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
   build-module:
     needs: [discover, prepare-dependencies]
@@ -300,10 +287,15 @@ jobs:
     env:
       MODULE_DIR: ${{ matrix.module_dir }}
       BUILD_ROOT: ${{ matrix.build_root }}
-      MANIFEST_PATH: ${{ github.workspace }}/${{ matrix.build_root }}/hl2sdk-manifests
+      PLUGIN_NAME: ${{ matrix.plugin_name }}
+      PLUGIN_ALIAS: ${{ matrix.plugin_alias }}
       PACKAGE_DIR: vip_modules
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Initialize temporary dependency paths
+        run: |
+          echo "DEPS_ROOT=$RUNNER_TEMP/vip-dependencies" >> "$GITHUB_ENV"
+          echo "MANIFEST_PATH=$RUNNER_TEMP/hl2sdk-manifests" >> "$GITHUB_ENV"
       - name: Prepare build tools
         id: prepare-build-tools
         uses: ./.github/actions/prepare-build-tools
@@ -316,10 +308,10 @@ jobs:
         uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
         with:
           path: |
-            ambuild
-            external/metamod-source
-            external/hl2sdk-cs2
-            external/SchemaEntity
+            ${{ runner.temp }}/vip-dependencies/ambuild
+            ${{ runner.temp }}/vip-dependencies/external/metamod-source
+            ${{ runner.temp }}/vip-dependencies/external/hl2sdk-cs2
+            ${{ runner.temp }}/vip-dependencies/external/SchemaEntity
           key: ${{ env.CACHE_VERSION }}-${{ runner.os }}-${{ runner.arch }}-ubuntu24.04-${{ env.AMBUILD_REF }}-${{ env.MMS_REF }}-${{ env.HL2SDK_REF }}-${{ env.SCHEMAENTITY_REF }}-${{ env.MANIFEST_REF }}
       - name: Restore pip cache
         id: restore-pip
@@ -338,7 +330,7 @@ jobs:
         id: install-ci-dependencies
         run: |
           start_time=$(date +%s)
-          python -m pip install --upgrade -r "$GITHUB_WORKSPACE/.github/ci-requirements.txt"
+          python -m pip install --require-hashes -r "$GITHUB_WORKSPACE/.github/ci-requirements.txt"
           pip_install_seconds=$(( $(date +%s) - start_time ))
           echo "pip_install_seconds=$pip_install_seconds" >> "$GITHUB_OUTPUT"
       - name: Restore or checkout pinned dependencies
@@ -347,20 +339,20 @@ jobs:
           DEPENDENCY_CACHE_HIT: ${{ steps.restore-dependencies.outputs.cache-hit }}
         run: |
           start_time=$(date +%s)
-          mkdir -p "$GITHUB_WORKSPACE/external"
+          mkdir -p "$DEPS_ROOT/external"
           if [[ "$DEPENDENCY_CACHE_HIT" != "true" ]]; then
-            git clone --depth 1 --no-checkout https://github.com/alliedmodders/ambuild.git "$GITHUB_WORKSPACE/ambuild"
-            git -C "$GITHUB_WORKSPACE/ambuild" fetch --depth 1 origin "$AMBUILD_REF"
-            git -C "$GITHUB_WORKSPACE/ambuild" checkout --detach "$AMBUILD_REF"
-            git clone --depth 1 --no-checkout https://github.com/alliedmodders/metamod-source.git "$GITHUB_WORKSPACE/external/metamod-source"
-            git -C "$GITHUB_WORKSPACE/external/metamod-source" fetch --depth 1 origin "$MMS_REF"
-            git -C "$GITHUB_WORKSPACE/external/metamod-source" checkout --detach "$MMS_REF"
-            git -C "$GITHUB_WORKSPACE/external/metamod-source" submodule update --init --recursive
-            git clone --depth 1 --no-checkout https://github.com/alliedmodders/hl2sdk.git "$GITHUB_WORKSPACE/external/hl2sdk-cs2"
-            git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" fetch --depth 1 origin "$HL2SDK_REF"
-            git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" checkout --detach "$HL2SDK_REF"
-            git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" submodule update --init --recursive
-            schema_root="$GITHUB_WORKSPACE/external/SchemaEntity"
+            git clone --depth 1 --no-checkout https://github.com/alliedmodders/ambuild.git "$DEPS_ROOT/ambuild"
+            git -C "$DEPS_ROOT/ambuild" fetch --depth 1 origin "$AMBUILD_REF"
+            git -C "$DEPS_ROOT/ambuild" checkout --detach "$AMBUILD_REF"
+            git clone --depth 1 --no-checkout https://github.com/alliedmodders/metamod-source.git "$DEPS_ROOT/external/metamod-source"
+            git -C "$DEPS_ROOT/external/metamod-source" fetch --depth 1 origin "$MMS_REF"
+            git -C "$DEPS_ROOT/external/metamod-source" checkout --detach "$MMS_REF"
+            git -C "$DEPS_ROOT/external/metamod-source" submodule update --init --recursive
+            git clone --depth 1 --no-checkout https://github.com/alliedmodders/hl2sdk.git "$DEPS_ROOT/external/hl2sdk-cs2"
+            git -C "$DEPS_ROOT/external/hl2sdk-cs2" fetch --depth 1 origin "$HL2SDK_REF"
+            git -C "$DEPS_ROOT/external/hl2sdk-cs2" checkout --detach "$HL2SDK_REF"
+            git -C "$DEPS_ROOT/external/hl2sdk-cs2" submodule update --init --recursive
+            schema_root="$DEPS_ROOT/external/SchemaEntity"
             git clone --depth 1 --no-checkout https://github.com/pisex/SchemaEntity.git "$schema_root"
             git -C "$schema_root" fetch --depth 1 origin "$SCHEMAENTITY_REF"
             git -C "$schema_root" checkout --detach "$SCHEMAENTITY_REF"
@@ -368,23 +360,16 @@ jobs:
           else
             echo "fallback-used=false" >> "$GITHUB_OUTPUT"
           fi
-          schema_root="$GITHUB_WORKSPACE/external/SchemaEntity"
-          python -m pip install "$GITHUB_WORKSPACE/ambuild"
+          schema_root="$DEPS_ROOT/external/SchemaEntity"
+          python -m pip install "$DEPS_ROOT/ambuild"
           python .github/scripts/verify_python_toolchain.py --check-ambuild
-          if [[ "$BUILD_ROOT" == "$MODULE_DIR" ]]; then
-            schema_link="$GITHUB_WORKSPACE/SchemaEntity"
-          else
-            schema_link="$GITHUB_WORKSPACE/$MODULE_DIR/SchemaEntity"
-          fi
-          rm -rf "$schema_link"
-          ln -s "$schema_root" "$schema_link"
           rm -rf "$MANIFEST_PATH"
           mkdir -p "$MANIFEST_PATH"
-          cp -R "$GITHUB_WORKSPACE/external/metamod-source/hl2sdk-manifests/." "$MANIFEST_PATH/"
-          test "$(git -C "$GITHUB_WORKSPACE/ambuild" rev-parse HEAD)" = "$AMBUILD_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/metamod-source" rev-parse HEAD)" = "$MMS_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/metamod-source/hl2sdk-manifests" rev-parse HEAD)" = "$MANIFEST_REF"
-          test "$(git -C "$GITHUB_WORKSPACE/external/hl2sdk-cs2" rev-parse HEAD)" = "$HL2SDK_REF"
+          cp -R "$DEPS_ROOT/external/metamod-source/hl2sdk-manifests/." "$MANIFEST_PATH/"
+          test "$(git -C "$DEPS_ROOT/ambuild" rev-parse HEAD)" = "$AMBUILD_REF"
+          test "$(git -C "$DEPS_ROOT/external/metamod-source" rev-parse HEAD)" = "$MMS_REF"
+          test "$(git -C "$DEPS_ROOT/external/metamod-source/hl2sdk-manifests" rev-parse HEAD)" = "$MANIFEST_REF"
+          test "$(git -C "$DEPS_ROOT/external/hl2sdk-cs2" rev-parse HEAD)" = "$HL2SDK_REF"
           test "$(git -C "$schema_root" rev-parse HEAD)" = "$SCHEMAENTITY_REF"
           echo "pinned_dependencies_seconds=$(( $(date +%s) - start_time ))" >> "$GITHUB_STEP_SUMMARY"
       - name: Write dependency cache summary
@@ -401,7 +386,6 @@ jobs:
           PIP_CACHE_HIT: ${{ steps.restore-pip.outputs.cache-hit }}
           PIP_RESTORE_OUTCOME: ${{ steps.restore-pip.outcome }}
           FALLBACK_USED: ${{ steps.checkout-pinned-dependencies.outputs.fallback-used }}
-          SYSTEM_SETUP_SECONDS: ${{ steps.prepare-build-tools.outputs.setup-seconds }}
           APT_UPDATED: ${{ steps.prepare-build-tools.outputs.apt-updated }}
           MISSING_APT_PACKAGES: ${{ steps.prepare-build-tools.outputs.missing-apt-packages }}
           PIP_INSTALL_SECONDS: ${{ steps.install-ci-dependencies.outputs.pip_install_seconds }}
@@ -454,7 +438,6 @@ jobs:
           FALLBACK_USED: ${{ steps.checkout-pinned-dependencies.outputs.fallback-used }}
           CACHE_RESTORE_STARTED_AT: ${{ steps.cache-restore-start.outputs.started_at }}
           CACHE_RESTORE_FINISHED_AT: ${{ steps.cache-restore-finish.outputs.finished_at }}
-          SYSTEM_SETUP_SECONDS: ${{ steps.prepare-build-tools.outputs.setup-seconds }}
           APT_UPDATED: ${{ steps.prepare-build-tools.outputs.apt-updated }}
           MISSING_APT_PACKAGES: ${{ steps.prepare-build-tools.outputs.missing-apt-packages }}
           PIP_INSTALL_SECONDS: ${{ steps.install-ci-dependencies.outputs.pip_install_seconds }}
@@ -472,52 +455,23 @@ jobs:
           path: cache-metrics/${{ matrix.module }}.json
           archive: true
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
       - name: Prepare compatibility patches
         run: |
-          schema_root="$GITHUB_WORKSPACE/external/SchemaEntity"
-          sed -i '/#include "schemasystem.h"/a #include "gametrace.h"' "$schema_root/globaltypes.h"
-          sed -i 's/NetworkStateChanged_t/NetworkStateChangedData/g' "$schema_root/schemasystem.cpp"
-          sed -i 's/FL_PAWN_FAKECLIENT/FL_BOT/g; s/FL_CONTROLLER_FAKECLIENT/FL_FAKECLIENT/g' "$schema_root/CCSPlayerPawn.h" "$schema_root/CCSPlayerController.h"
-          python - "$schema_root/ctimer.h" <<'PY'
-          import sys
-          from pathlib import Path
-          timer_path = Path(sys.argv[1])
-          content = timer_path.read_text()
-          needle = "class CTimerBase {\npublic:\n"
-          if "virtual ~CTimerBase()" in content:
-              raise SystemExit("CTimerBase destructor patch is already present")
-          if needle not in content:
-              raise SystemExit("Expected CTimerBase declaration was not found")
-          timer_path.write_text(content.replace(needle, needle + "    virtual ~CTimerBase() = default;\n", 1))
-          PY
-          grep -q '#include "gametrace.h"' "$schema_root/globaltypes.h"
-          ! grep -q 'NetworkStateChanged_t' "$schema_root/schemasystem.cpp"
-          ! grep -q 'FL_PAWN_FAKECLIENT\|FL_CONTROLLER_FAKECLIENT' "$schema_root/CCSPlayerPawn.h" "$schema_root/CCSPlayerController.h"
-      - name: Prepare and validate SDK manifest
-        run: |
-          proto_path="$GITHUB_WORKSPACE/external/hl2sdk-cs2/common/network_connection.proto"
-          if ! grep -q '^syntax = ' "$proto_path"; then
-            sed -i '1i syntax = "proto2";' "$proto_path"
-          fi
-          grep -q '^syntax = "proto2";$' "$proto_path"
-          python - "$MANIFEST_PATH/manifests/cs2.json" "$GITHUB_WORKSPACE/external/hl2sdk-cs2" <<'PY'
-          import json
-          import sys
-          from pathlib import Path
-          manifest_path = Path(sys.argv[1])
-          sdk_root = Path(sys.argv[2])
-          manifest = json.loads(manifest_path.read_text())
-          manifest["include_paths"] = [path for path in manifest["include_paths"] if (sdk_root / path).is_dir()]
-          manifest_path.write_text(json.dumps(manifest, indent=4) + "\n")
-          PY
+          schema_root="$DEPS_ROOT/external/SchemaEntity"
+          python .github/scripts/apply_sdk_compatibility_patches.py \
+            --sdk-root "$DEPS_ROOT/external/hl2sdk-cs2" \
+            --manifest-path "$MANIFEST_PATH/manifests/cs2.json" \
+            --schema-root "$schema_root" \
+            --require-include public/game/server
           test -f "$MANIFEST_PATH/SdkHelpers.ambuild"
           test -f "$MANIFEST_PATH/manifests/cs2.json"
-          test -f "$GITHUB_WORKSPACE/external/hl2sdk-cs2/public/tier1/generichash.h"
-          test ! -f "$GITHUB_WORKSPACE/external/hl2sdk-cs2/tier1/generichash.cpp"
-          sed -i "/tier1', 'generichash.cpp/d" "$GITHUB_WORKSPACE/$BUILD_ROOT/AMBuildScript"
+          test ! -f "$DEPS_ROOT/external/hl2sdk-cs2/tier1/generichash.cpp"
           ! grep -q "tier1', 'generichash.cpp" "$GITHUB_WORKSPACE/$BUILD_ROOT/AMBuildScript"
+
+      - name: Set reproducible build epoch
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct "$GITHUB_SHA")" >> "$GITHUB_ENV"
       - name: Configure and build
         env:
           CC: clang-18
@@ -527,7 +481,18 @@ jobs:
           rm -rf "$GITHUB_WORKSPACE/$BUILD_ROOT/build"
           mkdir -p "$GITHUB_WORKSPACE/$BUILD_ROOT/build"
           cd "$GITHUB_WORKSPACE/$BUILD_ROOT/build"
-          python ../configure.py --sdks cs2 --targets x86_64 --enable-optimize --hl2sdk-manifests="$MANIFEST_PATH" --mms_path="$GITHUB_WORKSPACE/external/metamod-source" --hl2sdk-root="$GITHUB_WORKSPACE/external"
+          python ../configure.py \
+            --sdks cs2 \
+            --targets x86_64 \
+            --enable-optimize \
+            --disable-debug \
+            --plugin-name "$PLUGIN_NAME" \
+            --plugin-alias "$PLUGIN_ALIAS" \
+            --hl2sdk-manifests="$MANIFEST_PATH" \
+            --mms_path="$DEPS_ROOT/external/metamod-source" \
+            --hl2sdk-root="$DEPS_ROOT/external" \
+            --schemaentity-root="$DEPS_ROOT/external/SchemaEntity" \
+            --vip-sdk-root="$GITHUB_WORKSPACE/include"
           ambuild
           echo "configure_build_seconds=$(( $(date +%s) - start_time ))" >> "$GITHUB_STEP_SUMMARY"
       - name: Validate package and create archive
@@ -537,8 +502,11 @@ jobs:
             --manifest "$GITHUB_WORKSPACE/.github/package-manifest.json" \
             --package-root "$package_root" \
             --package-key "${{ matrix.module }}"
-          archive="$GITHUB_WORKSPACE/${{ matrix.module }}.tar.gz"
-          tar -czf "$archive" -C "$package_root" addons
+          archive="$RUNNER_TEMP/${{ matrix.module }}.tar.gz"
+          python "$GITHUB_WORKSPACE/.github/scripts/create_reproducible_archive.py" \
+            --root "$package_root" \
+            --output "$archive" \
+            --format tar.gz
           python "$GITHUB_WORKSPACE/.github/scripts/validate_package.py" \
             --manifest "$GITHUB_WORKSPACE/.github/package-manifest.json" \
             --package-key "${{ matrix.module }}" \
@@ -548,15 +516,59 @@ jobs:
             --manifest "$GITHUB_WORKSPACE/.github/package-manifest.json" \
             --package-key "${{ matrix.module }}" \
             --package-root "$package_root"
+          python "$GITHUB_WORKSPACE/.github/scripts/verify_elf_hardening.py" \
+            "$package_root/${{ matrix.binary }}" \
+            --library-path "$DEPS_ROOT/external/hl2sdk-cs2/lib/linux64"
           test -s "$archive"
+
+      - name: Rebuild representative module and compare digests
+        if: matrix.module == 'VIP_Test'
+        env:
+          CC: clang-18
+          CXX: clang++-18
+        run: |
+          repro_root="$GITHUB_WORKSPACE/$BUILD_ROOT/build-repro"
+          rm -rf "$repro_root"
+          mkdir -p "$repro_root"
+          cd "$repro_root"
+          python ../configure.py \
+            --sdks cs2 \
+            --targets x86_64 \
+            --enable-optimize \
+            --disable-debug \
+            --plugin-name "$PLUGIN_NAME" \
+            --plugin-alias "$PLUGIN_ALIAS" \
+            --hl2sdk-manifests="$MANIFEST_PATH" \
+            --mms_path="$DEPS_ROOT/external/metamod-source" \
+            --hl2sdk-root="$DEPS_ROOT/external" \
+            --schemaentity-root="$DEPS_ROOT/external/SchemaEntity" \
+            --vip-sdk-root="$GITHUB_WORKSPACE/include"
+          ambuild
+          cd "$GITHUB_WORKSPACE"
+          cmp \
+            "$GITHUB_WORKSPACE/$BUILD_ROOT/build/package/${{ matrix.binary }}" \
+            "$repro_root/package/${{ matrix.binary }}"
+          python .github/scripts/create_reproducible_archive.py \
+            --root "$repro_root/package" \
+            --output "$RUNNER_TEMP/${{ matrix.module }}-repro.tar.gz" \
+            --format tar.gz
+          cmp \
+            "$RUNNER_TEMP/${{ matrix.module }}.tar.gz" \
+            "$RUNNER_TEMP/${{ matrix.module }}-repro.tar.gz"
+
+      - name: Verify build left checkout clean
+        run: |
+          git diff --exit-code
+          test -z "$(git status --porcelain --untracked-files=all)"
 
       - name: Upload module archive
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          path: ${{ matrix.module }}.tar.gz
-          archive: false
+          name: ${{ matrix.module }}.tar.gz
+          path: ${{ runner.temp }}/${{ matrix.module }}.tar.gz
+          archive: true
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
 
   package-release:
     name: Package release artifacts
@@ -566,6 +578,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Set reproducible archive epoch
+        run: echo "SOURCE_DATE_EPOCH=$(git show -s --format=%ct "$GITHUB_SHA")" >> "$GITHUB_ENV"
 
       - name: Install packaging tools
         run: |
@@ -608,17 +623,26 @@ jobs:
           rm -rf combined-root release info
           mkdir -p combined-root release info
           cp module-archives/VIP_*.tar.gz release/
-          (
-            cd module-archives
-            tar -czf "$GITHUB_WORKSPACE/release/Modules.tar.gz" VIP_*.tar.gz
-          )
+          python3 .github/scripts/create_reproducible_archive.py \
+            --root module-archives \
+            --output release/Modules.tar.gz \
+            --format tar.gz
           test -s release/Modules.tar.gz
           for archive in module-archives/VIP_*.tar.gz; do
             tar -xzf "$archive" -C combined-root
           done
           test -d combined-root/addons
           cp release/Modules.tar.gz combined-root/Modules.tar.gz
-          tar -czf release/VIP_All_Modules.tar.gz -C combined-root addons Modules.tar.gz
+          python3 .github/scripts/create_reproducible_archive.py \
+            --root combined-root \
+            --output release/VIP_All_Modules.tar.gz \
+            --format tar.gz
+          python3 .github/scripts/create_reproducible_archive.py \
+            --root combined-root \
+            --output release/VIP_All_Modules.repro.tar.gz \
+            --format tar.gz
+          cmp release/VIP_All_Modules.tar.gz release/VIP_All_Modules.repro.tar.gz
+          rm release/VIP_All_Modules.repro.tar.gz
           cp release/VIP_All_Modules.tar.gz release/VIP_Modules.tar.gz
           cmp --silent release/VIP_All_Modules.tar.gz release/VIP_Modules.tar.gz
 
@@ -703,6 +727,42 @@ jobs:
           print(f"Validated {len(expected_addons)} package files and {len(expected_module_archives)} module archives")
           PY
 
+      - name: Generate and verify combined SPDX SBOM
+        run: |
+          python3 .github/scripts/generate_spdx_sbom.py \
+            --name cs2-vip-modules \
+            --version "$GITHUB_SHA" \
+            --repository "$GITHUB_REPOSITORY" \
+            --archive release/VIP_All_Modules.tar.gz \
+            --root combined-root \
+            --requirements .github/ci-requirements.txt \
+            --git-dependency "VIP-Core=https://github.com/bywinsty/cs2-vip#$VIP_CORE_REF" \
+            --git-dependency "AMBuild=https://github.com/alliedmodders/ambuild#$AMBUILD_REF" \
+            --git-dependency "Metamod-Source=https://github.com/alliedmodders/metamod-source#$MMS_REF" \
+            --git-dependency "HL2SDK-CS2=https://github.com/alliedmodders/hl2sdk#$HL2SDK_REF" \
+            --git-dependency "HL2SDK-Manifests=https://github.com/alliedmodders/hl2sdk-manifests#$MANIFEST_REF" \
+            --git-dependency "SchemaEntity=https://github.com/pisex/SchemaEntity#$SCHEMAENTITY_REF" \
+            --output release/VIP_All_Modules.spdx.json
+          python3 .github/scripts/verify_spdx_subject.py \
+            --archive release/VIP_All_Modules.tar.gz \
+            --sbom release/VIP_All_Modules.spdx.json
+          python3 .github/scripts/generate_spdx_sbom.py \
+            --name cs2-vip-modules \
+            --version "$GITHUB_SHA" \
+            --repository "$GITHUB_REPOSITORY" \
+            --archive release/VIP_All_Modules.tar.gz \
+            --root combined-root \
+            --requirements .github/ci-requirements.txt \
+            --git-dependency "VIP-Core=https://github.com/bywinsty/cs2-vip#$VIP_CORE_REF" \
+            --git-dependency "AMBuild=https://github.com/alliedmodders/ambuild#$AMBUILD_REF" \
+            --git-dependency "Metamod-Source=https://github.com/alliedmodders/metamod-source#$MMS_REF" \
+            --git-dependency "HL2SDK-CS2=https://github.com/alliedmodders/hl2sdk#$HL2SDK_REF" \
+            --git-dependency "HL2SDK-Manifests=https://github.com/alliedmodders/hl2sdk-manifests#$MANIFEST_REF" \
+            --git-dependency "SchemaEntity=https://github.com/pisex/SchemaEntity#$SCHEMAENTITY_REF" \
+            --output release/VIP_All_Modules.repro.spdx.json
+          cmp release/VIP_All_Modules.spdx.json release/VIP_All_Modules.repro.spdx.json
+          rm release/VIP_All_Modules.repro.spdx.json
+
       - name: Create build reports
         env:
           MODULES_JSON: ${{ needs.discover.outputs.modules }}
@@ -745,10 +805,10 @@ jobs:
             done
           ) > info/SHA256SUMS
           test "$(wc -l < info/SHA256SUMS)" -eq "$EXPECTED_RELEASE_ARCHIVE_COUNT"
-          (
-            cd info
-            zip -q -j "$GITHUB_WORKSPACE/release/Modules_Build_Info.zip" SHA256SUMS *.md
-          )
+          python3 .github/scripts/create_reproducible_archive.py \
+            --root info \
+            --output release/Modules_Build_Info.zip \
+            --format zip
 
       - name: Validate metadata archive
         env:
@@ -803,29 +863,46 @@ jobs:
           print("Validated metadata archive and SHA256SUMS")
           PY
 
+      - name: Verify packaging left checkout clean
+        run: |
+          git diff --exit-code
+          test -z "$(git status --porcelain --untracked-files=all)"
+
       - name: Upload combined module archive
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
+          name: VIP_All_Modules.tar.gz
           path: release/VIP_All_Modules.tar.gz
-          archive: false
+          archive: true
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
 
       - name: Upload legacy combined module archive alias
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
+          name: VIP_Modules.tar.gz
           path: release/VIP_Modules.tar.gz
-          archive: false
+          archive: true
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
+
+      - name: Upload combined SPDX SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: VIP_All_Modules.spdx.json
+          path: release/VIP_All_Modules.spdx.json
+          archive: true
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Upload build information
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
+          name: Modules_Build_Info.zip
           path: release/Modules_Build_Info.zip
-          archive: false
+          archive: true
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
   build-summary:
     needs: [discover, prepare-dependencies, build-module, package-release]
     if: always()
@@ -863,7 +940,7 @@ jobs:
           path: cache-metrics-summary.json
           archive: true
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
       - name: Verify build results
         env:
@@ -880,17 +957,34 @@ jobs:
   create-release:
     name: Update GitHub release
     needs: [discover, build-summary]
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.discover.result == 'success' && needs.build-summary.result == 'success' }}
+    if: >-
+      ${{
+        github.event_name == 'push' &&
+        (
+          github.ref_name == 'dev' ||
+          (
+            github.ref_name == 'Modules' &&
+            vars.RUNTIME_VALIDATION_SHA == github.sha &&
+            vars.RUNTIME_VALIDATION_REPORT_URL != ''
+          )
+        ) &&
+        needs.discover.result == 'success' &&
+        needs.build-summary.result == 'success'
+      }}
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     concurrency:
-      group: release-1.0-bywinsty
+      group: release-${{ github.ref_name }}
       cancel-in-progress: false
     env:
       GH_TOKEN: ${{ github.token }}
-      RELEASE_TAG: 1.0-bywinsty
-      RELEASE_TITLE: 1.0-bywinsty
+      RELEASE_TAG: ${{ github.ref_name == 'Modules' && '1.0-bywinsty' || 'dev' }}
+      RELEASE_TITLE: ${{ github.ref_name == 'Modules' && '1.0-bywinsty' || 'dev' }}
+      IS_PRERELEASE: ${{ github.ref_name == 'dev' }}
+      RUNTIME_VALIDATION_REPORT_URL: ${{ vars.RUNTIME_VALIDATION_REPORT_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -901,6 +995,12 @@ jobs:
           pattern: VIP_*.tar.gz
           path: release-assets
           merge-multiple: true
+
+      - name: Download combined SPDX SBOM
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: VIP_All_Modules.spdx.json
+          path: release-assets
 
       - name: Validate release inputs
         run: |
@@ -921,22 +1021,28 @@ jobs:
               raise SystemExit(f"Expected 37 tar.gz assets, found {len(actual)}")
           if Path("release-assets/Modules_Build_Info.zip").exists():
               raise SystemExit("Modules_Build_Info.zip must not be a release input")
+          sbom = Path("release-assets/VIP_All_Modules.spdx.json")
+          if not sbom.is_file():
+              raise SystemExit("VIP_All_Modules.spdx.json is missing")
           print("Validated 35 module archives and both combined archive names")
           PY
+          python3 .github/scripts/verify_spdx_subject.py \
+            --archive release-assets/VIP_All_Modules.tar.gz \
+            --sbom release-assets/VIP_All_Modules.spdx.json
 
-      - name: Check current main tip
-        id: main-tip
+      - name: Check current branch tip
+        id: branch-tip
         run: |
-          current_tip="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          current_tip="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$GITHUB_REF_NAME" --jq '.object.sha')"
           if [[ "$current_tip" != "$GITHUB_SHA" ]]; then
-            echo "Skipping stale run: main tip is $current_tip, workflow SHA is $GITHUB_SHA"
+            echo "Skipping stale run: $GITHUB_REF_NAME tip is $current_tip, workflow SHA is $GITHUB_SHA"
             echo "stale=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           echo "stale=false" >> "$GITHUB_OUTPUT"
 
       - name: Move release tag
-        if: steps.main-tip.outputs.stale != 'true'
+        if: steps.branch-tip.outputs.stale != 'true'
         run: |
           tag_ref="repos/$GITHUB_REPOSITORY/git/refs/tags/$RELEASE_TAG"
           if gh api "$tag_ref" >/dev/null 2>&1; then
@@ -946,37 +1052,68 @@ jobs:
           fi
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG" --jq '.object.sha')" = "$GITHUB_SHA"
 
-      - name: Delete existing release
-        if: steps.main-tip.outputs.stale != 'true'
+      - name: Attest release archive provenance
+        if: steps.branch-tip.outputs.stale != 'true'
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: release-assets/*.tar.gz
+
+      - name: Attest combined archive SBOM
+        if: steps.branch-tip.outputs.stale != 'true'
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: release-assets/VIP_All_Modules.tar.gz
+          sbom-path: release-assets/VIP_All_Modules.spdx.json
+
+      - name: Attest SPDX document provenance
+        if: steps.branch-tip.outputs.stale != 'true'
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: release-assets/VIP_All_Modules.spdx.json
+
+      - name: Create or update release
+        if: steps.branch-tip.outputs.stale != 'true'
         run: |
+          notes=$'Automated release from '"$GITHUB_REF_NAME"$'.\n\nCommit: '"$GITHUB_SHA"$'\nWorkflow run: https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"
+          if [[ "$IS_PRERELEASE" != "true" ]]; then
+            notes+=$'\nRuntime validation: '"$RUNTIME_VALIDATION_REPORT_URL"
+          fi
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release delete "$RELEASE_TAG" \
+            gh release edit "$RELEASE_TAG" \
               --repo "$GITHUB_REPOSITORY" \
-              --yes
+              --target "$GITHUB_SHA" \
+              --title "$RELEASE_TITLE" \
+              --notes "$notes" \
+              --draft=false \
+              --prerelease="$IS_PRERELEASE"
+          else
+            create_args=(
+              "$RELEASE_TAG"
+              --repo "$GITHUB_REPOSITORY"
+              --target "$GITHUB_SHA"
+              --title "$RELEASE_TITLE"
+              --notes "$notes"
+            )
+            if [[ "$IS_PRERELEASE" == "true" ]]; then
+              create_args+=(--prerelease)
+            fi
+            gh release create "${create_args[@]}"
           fi
 
-      - name: Create replacement draft release
-        if: steps.main-tip.outputs.stale != 'true'
-        run: |
-          notes=$'Automated release from main.\n\nCommit: '"$GITHUB_SHA"$'\nWorkflow run: https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"
-          gh release create "$RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" \
-            --title "$RELEASE_TITLE" \
-            --notes "$notes" \
-            --draft
-
       - name: Upload release assets
-        if: steps.main-tip.outputs.stale != 'true'
+        if: steps.branch-tip.outputs.stale != 'true'
         run: |
           for asset in release-assets/*.tar.gz; do
             gh release upload "$RELEASE_TAG" "$asset"               --repo "$GITHUB_REPOSITORY"               --clobber
           done
+          gh release upload "$RELEASE_TAG" release-assets/VIP_All_Modules.spdx.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
 
       - name: Verify release assets
-        if: steps.main-tip.outputs.stale != 'true'
+        if: steps.branch-tip.outputs.stale != 'true'
         run: |
-          mapfile -t expected < <(find release-assets -maxdepth 1 -type f -name '*.tar.gz' -printf '%f\n' | sort)
+          mapfile -t expected < <(find release-assets -maxdepth 1 -type f \( -name '*.tar.gz' -o -name '*.spdx.json' \) -printf '%f\n' | sort)
           mapfile -t actual < <(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)
           if [[ "${expected[*]}" != "${actual[*]}" ]]; then
             echo "Expected release assets:"
@@ -989,12 +1126,10 @@ jobs:
             echo "Modules_Build_Info.zip must not be published"
             exit 1
           fi
-          test "${#actual[@]}" -eq 37
-          echo "Release contains exactly 37 tar.gz assets, including the legacy combined archive alias."
-
-      - name: Publish replacement release
-        if: steps.main-tip.outputs.stale != 'true'
-        run: |
-          gh release edit "$RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --draft=false
+          test "${#actual[@]}" -eq 38
+          gh attestation verify release-assets/VIP_All_Modules.tar.gz --repo "$GITHUB_REPOSITORY"
+          gh attestation verify release-assets/VIP_All_Modules.spdx.json --repo "$GITHUB_REPOSITORY"
+          python3 .github/scripts/verify_spdx_subject.py \
+            --archive release-assets/VIP_All_Modules.tar.gz \
+            --sbom release-assets/VIP_All_Modules.spdx.json
+          echo "Release contains 37 tar.gz assets and the combined SPDX SBOM."

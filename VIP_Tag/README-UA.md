@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Tag](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Tag)
+# [VIP] [Tag](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Tag)
 
 ## Дозволяє VIP-гравцям використовувати тег клану в таблиці рахунку.
 

@@ -1,0 +1,57 @@
+name: Runtime Release Preflight
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Core and modules release tag to verify before the local server harness
+        required: true
+        default: dev
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  verify-release:
+    name: Verify core, modules, and runtime harness contract
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: Test runtime harness safety
+        run: python3 .github/scripts/test_runtime_validate.py
+
+      - name: Download core release subjects
+        run: |
+          mkdir release-files
+          gh release download "$RELEASE_TAG" \
+            --repo bywinsty/cs2-vip \
+            --pattern vip.zip \
+            --pattern vip.spdx.json \
+            --dir release-files
+
+      - name: Download modules release subjects
+        run: |
+          gh release download "$RELEASE_TAG" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern VIP_All_Modules.tar.gz \
+            --pattern VIP_All_Modules.spdx.json \
+            --dir release-files
+
+      - name: Verify checksums, provenance, and SBOM attestations
+        run: |
+          python3 .github/scripts/verify_spdx_subject.py \
+            --archive release-files/vip.zip \
+            --sbom release-files/vip.spdx.json
+          python3 .github/scripts/verify_spdx_subject.py \
+            --archive release-files/VIP_All_Modules.tar.gz \
+            --sbom release-files/VIP_All_Modules.spdx.json
+          gh attestation verify release-files/vip.zip --repo bywinsty/cs2-vip
+          gh attestation verify release-files/vip.spdx.json --repo bywinsty/cs2-vip
+          gh attestation verify release-files/VIP_All_Modules.tar.gz --repo "$GITHUB_REPOSITORY"
+          gh attestation verify release-files/VIP_All_Modules.spdx.json --repo "$GITHUB_REPOSITORY"

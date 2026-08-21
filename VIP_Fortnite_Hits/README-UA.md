@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Fortnite Hits](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Fortnite_Hits)
+# [VIP] [Fortnite Hits](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Fortnite_Hits)
 
 ## З'єднує VIP-доступ із плагіном Fortnite Hits. Цей модуль сам не показує шкоду, а викликає зовнішній `IFortniteHitsApi` для надання або відкликання доступу VIP-гравцям.
 

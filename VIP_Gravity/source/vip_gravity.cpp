@@ -49,8 +49,8 @@ void VIP_OnPlayerSpawn(int iSlot, int iTeam, bool bIsVIP)
 
 bool GravityModule::Unload(char* error, size_t maxlen)
 {
-    delete g_pVIPCore;
-    delete g_pUtils;
+    g_pVIPCore = nullptr;
+    g_pUtils = nullptr;
     return true;
 }
 
@@ -103,7 +103,7 @@ const char* GravityModule::GetVersion()
 
 const char* GravityModule::GetDate()
 {
-    return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char* GravityModule::GetLogTag()

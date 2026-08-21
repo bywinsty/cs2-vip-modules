@@ -24,7 +24,7 @@ bool VIPvampirism::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, 
 
 bool VIPvampirism::Unload(char *error, size_t maxlen)
 {
-	delete g_pVIPCore;
+	g_pVIPCore = nullptr;
 	return true;
 }
 
@@ -125,7 +125,7 @@ const char *VIPvampirism::GetVersion()
 
 const char *VIPvampirism::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *VIPvampirism::GetLogTag()

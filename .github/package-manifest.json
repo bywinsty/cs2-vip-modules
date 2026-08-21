@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "packages": {
     "VIP_AntiFlash": {
       "files": [
@@ -7,7 +7,11 @@
         "addons/metamod/vip_af.vdf"
       ],
       "binary": "addons/vip_modules/vip_af.so",
-      "vdf": "addons/metamod/vip_af.vdf"
+      "vdf": "addons/metamod/vip_af.vdf",
+      "module_dir": "VIP_AntiFlash",
+      "build_root": "VIP_AntiFlash/source",
+      "plugin_name": "vip_af",
+      "plugin_alias": "vip_af"
     },
     "VIP_AwpManager": {
       "files": [
@@ -15,7 +19,11 @@
         "addons/metamod/vip_awp_manager.vdf"
       ],
       "binary": "addons/vip_modules/vip_awp_manager.so",
-      "vdf": "addons/metamod/vip_awp_manager.vdf"
+      "vdf": "addons/metamod/vip_awp_manager.vdf",
+      "module_dir": "VIP_AwpManager",
+      "build_root": "VIP_AwpManager/source",
+      "plugin_name": "vip_awp_manager",
+      "plugin_alias": "vip_awp_manager"
     },
     "VIP_BaseFunctions": {
       "files": [
@@ -24,7 +32,11 @@
         "addons/configs/vip/vip_bf.ini"
       ],
       "binary": "addons/vip_modules/vip_bf.so",
-      "vdf": "addons/metamod/vip_bf.vdf"
+      "vdf": "addons/metamod/vip_bf.vdf",
+      "module_dir": "VIP_BaseFunctions",
+      "build_root": "VIP_BaseFunctions/source",
+      "plugin_name": "vip_bf",
+      "plugin_alias": "vip_bf"
     },
     "VIP_Bhop": {
       "files": [
@@ -32,7 +44,11 @@
         "addons/metamod/vip_bhop.vdf"
       ],
       "binary": "addons/vip_modules/vip_bhop.so",
-      "vdf": "addons/metamod/vip_bhop.vdf"
+      "vdf": "addons/metamod/vip_bhop.vdf",
+      "module_dir": "VIP_Bhop",
+      "build_root": "VIP_Bhop/source",
+      "plugin_name": "vip_bhop",
+      "plugin_alias": "vip_bhop"
     },
     "VIP_BuyTeamWeapon": {
       "files": [
@@ -41,7 +57,11 @@
         "addons/configs/vip/vip_btw.ini"
       ],
       "binary": "addons/vip_modules/vip_btw.so",
-      "vdf": "addons/metamod/vip_btw.vdf"
+      "vdf": "addons/metamod/vip_btw.vdf",
+      "module_dir": "VIP_BuyTeamWeapon",
+      "build_root": "VIP_BuyTeamWeapon/source",
+      "plugin_name": "vip_btw",
+      "plugin_alias": "vip_btw"
     },
     "VIP_DuckSpeed": {
       "files": [
@@ -49,7 +69,11 @@
         "addons/metamod/vip_duckspeed.vdf"
       ],
       "binary": "addons/vip_modules/vip_duckspeed.so",
-      "vdf": "addons/metamod/vip_duckspeed.vdf"
+      "vdf": "addons/metamod/vip_duckspeed.vdf",
+      "module_dir": "VIP_DuckSpeed",
+      "build_root": "VIP_DuckSpeed",
+      "plugin_name": "vip_duckspeed",
+      "plugin_alias": "vip_duckspeed"
     },
     "VIP_Endurance": {
       "files": [
@@ -57,7 +81,11 @@
         "addons/metamod/vip_endurance.vdf"
       ],
       "binary": "addons/vip_modules/vip_endurance.so",
-      "vdf": "addons/metamod/vip_endurance.vdf"
+      "vdf": "addons/metamod/vip_endurance.vdf",
+      "module_dir": "VIP_Endurance",
+      "build_root": "VIP_Endurance/source",
+      "plugin_name": "vip_endurance",
+      "plugin_alias": "vip_endurance"
     },
     "VIP_FOV": {
       "files": [
@@ -65,7 +93,11 @@
         "addons/metamod/vip_fov.vdf"
       ],
       "binary": "addons/vip_modules/vip_fov.so",
-      "vdf": "addons/metamod/vip_fov.vdf"
+      "vdf": "addons/metamod/vip_fov.vdf",
+      "module_dir": "VIP_FOV",
+      "build_root": "VIP_FOV/source",
+      "plugin_name": "vip_fov",
+      "plugin_alias": "vip_fov"
     },
     "VIP_FastDefuse": {
       "files": [
@@ -73,7 +105,11 @@
         "addons/metamod/vip_fd.vdf"
       ],
       "binary": "addons/vip_modules/vip_fd.so",
-      "vdf": "addons/metamod/vip_fd.vdf"
+      "vdf": "addons/metamod/vip_fd.vdf",
+      "module_dir": "VIP_FastDefuse",
+      "build_root": "VIP_FastDefuse/source",
+      "plugin_name": "vip_fd",
+      "plugin_alias": "vip_fd"
     },
     "VIP_FastPlant": {
       "files": [
@@ -81,7 +117,11 @@
         "addons/metamod/vip_fp.vdf"
       ],
       "binary": "addons/vip_modules/vip_fp.so",
-      "vdf": "addons/metamod/vip_fp.vdf"
+      "vdf": "addons/metamod/vip_fp.vdf",
+      "module_dir": "VIP_FastPlant",
+      "build_root": "VIP_FastPlant/src",
+      "plugin_name": "vip_fp",
+      "plugin_alias": "vip_fp"
     },
     "VIP_Fortnite_Hits": {
       "files": [
@@ -89,7 +129,11 @@
         "addons/metamod/fh_vip.vdf"
       ],
       "binary": "addons/vip_modules/fh_vip.so",
-      "vdf": "addons/metamod/fh_vip.vdf"
+      "vdf": "addons/metamod/fh_vip.vdf",
+      "module_dir": "VIP_Fortnite_Hits",
+      "build_root": "VIP_Fortnite_Hits/source",
+      "plugin_name": "fh_vip",
+      "plugin_alias": "fh_vip"
     },
     "VIP_Gravity": {
       "files": [
@@ -97,7 +141,11 @@
         "addons/metamod/vip_gravity.vdf"
       ],
       "binary": "addons/vip_modules/vip_gravity.so",
-      "vdf": "addons/metamod/vip_gravity.vdf"
+      "vdf": "addons/metamod/vip_gravity.vdf",
+      "module_dir": "VIP_Gravity",
+      "build_root": "VIP_Gravity/source",
+      "plugin_name": "vip_gravity",
+      "plugin_alias": "vip_gravity"
     },
     "VIP_Healthshot": {
       "files": [
@@ -106,7 +154,11 @@
         "addons/configs/vip/vip_healthshot.ini"
       ],
       "binary": "addons/vip_modules/vip_healthshot.so",
-      "vdf": "addons/metamod/vip_healthshot.vdf"
+      "vdf": "addons/metamod/vip_healthshot.vdf",
+      "module_dir": "VIP_Healthshot",
+      "build_root": "VIP_Healthshot/source",
+      "plugin_name": "vip_healthshot",
+      "plugin_alias": "vip_healthshot"
     },
     "VIP_Items": {
       "files": [
@@ -115,7 +167,11 @@
         "addons/configs/vip/vip_items.ini"
       ],
       "binary": "addons/vip_modules/vip_items.so",
-      "vdf": "addons/metamod/vip_items.vdf"
+      "vdf": "addons/metamod/vip_items.vdf",
+      "module_dir": "VIP_Items",
+      "build_root": "VIP_Items/src",
+      "plugin_name": "vip_items",
+      "plugin_alias": "vip_items"
     },
     "VIP_JoinSound": {
       "files": [
@@ -123,7 +179,11 @@
         "addons/metamod/vip_joinsound.vdf"
       ],
       "binary": "addons/vip_modules/vip_joinsound.so",
-      "vdf": "addons/metamod/vip_joinsound.vdf"
+      "vdf": "addons/metamod/vip_joinsound.vdf",
+      "module_dir": "VIP_JoinSound",
+      "build_root": "VIP_JoinSound/source",
+      "plugin_name": "vip_joinsound",
+      "plugin_alias": "vip_joinsound"
     },
     "VIP_Jumps": {
       "files": [
@@ -131,7 +191,11 @@
         "addons/metamod/vip_jumps.vdf"
       ],
       "binary": "addons/vip_modules/vip_jumps.so",
-      "vdf": "addons/metamod/vip_jumps.vdf"
+      "vdf": "addons/metamod/vip_jumps.vdf",
+      "module_dir": "VIP_Jumps",
+      "build_root": "VIP_Jumps/source",
+      "plugin_name": "vip_jumps",
+      "plugin_alias": "vip_jumps"
     },
     "VIP_KillScreen": {
       "files": [
@@ -140,7 +204,11 @@
         "addons/configs/vip/vip_ks.ini"
       ],
       "binary": "addons/vip_modules/vip_ks.so",
-      "vdf": "addons/metamod/vip_ks.vdf"
+      "vdf": "addons/metamod/vip_ks.vdf",
+      "module_dir": "VIP_KillScreen",
+      "build_root": "VIP_KillScreen/source",
+      "plugin_name": "vip_ks",
+      "plugin_alias": "vip_ks"
     },
     "VIP_MultiTest": {
       "files": [
@@ -149,7 +217,11 @@
         "addons/configs/vip/vip_multitest.ini"
       ],
       "binary": "addons/vip_modules/vip_multitest.so",
-      "vdf": "addons/metamod/vip_multitest.vdf"
+      "vdf": "addons/metamod/vip_multitest.vdf",
+      "module_dir": "VIP_MultiTest",
+      "build_root": "VIP_MultiTest/source",
+      "plugin_name": "vip_multitest",
+      "plugin_alias": "vip_multitest"
     },
     "VIP_NoFallDamage": {
       "files": [
@@ -157,7 +229,11 @@
         "addons/metamod/vip_nofalldamage.vdf"
       ],
       "binary": "addons/vip_modules/vip_nofalldamage.so",
-      "vdf": "addons/metamod/vip_nofalldamage.vdf"
+      "vdf": "addons/metamod/vip_nofalldamage.vdf",
+      "module_dir": "VIP_NoFallDamage",
+      "build_root": "VIP_NoFallDamage/source",
+      "plugin_name": "vip_nofalldamage",
+      "plugin_alias": "vip_nofalldamage"
     },
     "VIP_Penis": {
       "files": [
@@ -165,7 +241,11 @@
         "addons/metamod/vip_penis.vdf"
       ],
       "binary": "addons/vip_modules/vip_penis.so",
-      "vdf": "addons/metamod/vip_penis.vdf"
+      "vdf": "addons/metamod/vip_penis.vdf",
+      "module_dir": "VIP_Penis",
+      "build_root": "VIP_Penis/source",
+      "plugin_name": "vip_penis",
+      "plugin_alias": "vip_penis"
     },
     "VIP_RainbowModel": {
       "files": [
@@ -173,7 +253,11 @@
         "addons/metamod/vip_rm.vdf"
       ],
       "binary": "addons/vip_modules/vip_rm.so",
-      "vdf": "addons/metamod/vip_rm.vdf"
+      "vdf": "addons/metamod/vip_rm.vdf",
+      "module_dir": "VIP_RainbowModel",
+      "build_root": "VIP_RainbowModel/source",
+      "plugin_name": "vip_rm",
+      "plugin_alias": "vip_rm"
     },
     "VIP_RegenArmor": {
       "files": [
@@ -181,7 +265,11 @@
         "addons/metamod/vip_regen_armor.vdf"
       ],
       "binary": "addons/vip_modules/vip_regen_armor.so",
-      "vdf": "addons/metamod/vip_regen_armor.vdf"
+      "vdf": "addons/metamod/vip_regen_armor.vdf",
+      "module_dir": "VIP_RegenArmor",
+      "build_root": "VIP_RegenArmor/source",
+      "plugin_name": "vip_regen_armor",
+      "plugin_alias": "vip_regen_armor"
     },
     "VIP_RegenHP": {
       "files": [
@@ -189,7 +277,11 @@
         "addons/metamod/vip_regen_hp.vdf"
       ],
       "binary": "addons/vip_modules/vip_regen_hp.so",
-      "vdf": "addons/metamod/vip_regen_hp.vdf"
+      "vdf": "addons/metamod/vip_regen_hp.vdf",
+      "module_dir": "VIP_RegenHP",
+      "build_root": "VIP_RegenHP/source",
+      "plugin_name": "vip_regen_hp",
+      "plugin_alias": "vip_regen_hp"
     },
     "VIP_ResetDeaths": {
       "files": [
@@ -197,7 +289,11 @@
         "addons/metamod/vip_reset_deaths.vdf"
       ],
       "binary": "addons/vip_modules/vip_reset_deaths.so",
-      "vdf": "addons/metamod/vip_reset_deaths.vdf"
+      "vdf": "addons/metamod/vip_reset_deaths.vdf",
+      "module_dir": "VIP_ResetDeaths",
+      "build_root": "VIP_ResetDeaths/source",
+      "plugin_name": "vip_reset_deaths",
+      "plugin_alias": "vip_reset_deaths"
     },
     "VIP_Respawn": {
       "files": [
@@ -205,7 +301,11 @@
         "addons/metamod/vip_respawn.vdf"
       ],
       "binary": "addons/vip_modules/vip_respawn.so",
-      "vdf": "addons/metamod/vip_respawn.vdf"
+      "vdf": "addons/metamod/vip_respawn.vdf",
+      "module_dir": "VIP_Respawn",
+      "build_root": "VIP_Respawn/source",
+      "plugin_name": "vip_respawn",
+      "plugin_alias": "vip_respawn"
     },
     "VIP_ShowDamage": {
       "files": [
@@ -213,7 +313,11 @@
         "addons/metamod/vip_sd.vdf"
       ],
       "binary": "addons/vip_modules/vip_sd.so",
-      "vdf": "addons/metamod/vip_sd.vdf"
+      "vdf": "addons/metamod/vip_sd.vdf",
+      "module_dir": "VIP_ShowDamage",
+      "build_root": "VIP_ShowDamage/source",
+      "plugin_name": "vip_sd",
+      "plugin_alias": "vip_sd"
     },
     "VIP_Skins": {
       "files": [
@@ -221,7 +325,11 @@
         "addons/metamod/vip_skins.vdf"
       ],
       "binary": "addons/vip_modules/vip_skins.so",
-      "vdf": "addons/metamod/vip_skins.vdf"
+      "vdf": "addons/metamod/vip_skins.vdf",
+      "module_dir": "VIP_Skins",
+      "build_root": "VIP_Skins/source",
+      "plugin_name": "vip_skins",
+      "plugin_alias": "vip_skins"
     },
     "VIP_Smoke": {
       "files": [
@@ -229,7 +337,11 @@
         "addons/metamod/vip_smoke.vdf"
       ],
       "binary": "addons/vip_modules/vip_smoke.so",
-      "vdf": "addons/metamod/vip_smoke.vdf"
+      "vdf": "addons/metamod/vip_smoke.vdf",
+      "module_dir": "VIP_Smoke",
+      "build_root": "VIP_Smoke/source",
+      "plugin_name": "vip_smoke",
+      "plugin_alias": "vip_smoke"
     },
     "VIP_Speed": {
       "files": [
@@ -237,7 +349,11 @@
         "addons/metamod/vip_speed.vdf"
       ],
       "binary": "addons/vip_modules/vip_speed.so",
-      "vdf": "addons/metamod/vip_speed.vdf"
+      "vdf": "addons/metamod/vip_speed.vdf",
+      "module_dir": "VIP_Speed",
+      "build_root": "VIP_Speed/source",
+      "plugin_name": "vip_speed",
+      "plugin_alias": "vip_speed"
     },
     "VIP_Tag": {
       "files": [
@@ -245,7 +361,11 @@
         "addons/metamod/vip_tag.vdf"
       ],
       "binary": "addons/vip_modules/vip_tag.so",
-      "vdf": "addons/metamod/vip_tag.vdf"
+      "vdf": "addons/metamod/vip_tag.vdf",
+      "module_dir": "VIP_Tag",
+      "build_root": "VIP_Tag/source",
+      "plugin_name": "vip_tag",
+      "plugin_alias": "vip_tag"
     },
     "VIP_TeammatesHeal": {
       "files": [
@@ -254,7 +374,11 @@
         "addons/configs/vip/teammates_heal.ini"
       ],
       "binary": "addons/vip_modules/vip_teammates_heal.so",
-      "vdf": "addons/metamod/vip_teammates_heal.vdf"
+      "vdf": "addons/metamod/vip_teammates_heal.vdf",
+      "module_dir": "VIP_TeammatesHeal",
+      "build_root": "VIP_TeammatesHeal/source",
+      "plugin_name": "vip_teammates_heal",
+      "plugin_alias": "vip_teammates_heal"
     },
     "VIP_Test": {
       "files": [
@@ -263,7 +387,11 @@
         "addons/configs/vip/vip_test.ini"
       ],
       "binary": "addons/vip_modules/vip_test.so",
-      "vdf": "addons/metamod/vip_test.vdf"
+      "vdf": "addons/metamod/vip_test.vdf",
+      "module_dir": "VIP_Test",
+      "build_root": "VIP_Test/source",
+      "plugin_name": "vip_test",
+      "plugin_alias": "vip_test"
     },
     "VIP_Time": {
       "files": [
@@ -271,7 +399,11 @@
         "addons/metamod/vip_time.vdf"
       ],
       "binary": "addons/vip_modules/vip_time.so",
-      "vdf": "addons/metamod/vip_time.vdf"
+      "vdf": "addons/metamod/vip_time.vdf",
+      "module_dir": "VIP_Time",
+      "build_root": "VIP_Time/source",
+      "plugin_name": "vip_time",
+      "plugin_alias": "vip_time"
     },
     "VIP_Vampirism": {
       "files": [
@@ -279,7 +411,11 @@
         "addons/metamod/vip_vampirism.vdf"
       ],
       "binary": "addons/vip_modules/vip_vampirism.so",
-      "vdf": "addons/metamod/vip_vampirism.vdf"
+      "vdf": "addons/metamod/vip_vampirism.vdf",
+      "module_dir": "VIP_Vampirism",
+      "build_root": "VIP_Vampirism/source",
+      "plugin_name": "vip_vampirism",
+      "plugin_alias": "vip_vampirism"
     },
     "VIP_Vips": {
       "files": [
@@ -287,7 +423,11 @@
         "addons/metamod/vip_vips.vdf"
       ],
       "binary": "addons/vip_modules/vip_vips.so",
-      "vdf": "addons/metamod/vip_vips.vdf"
+      "vdf": "addons/metamod/vip_vips.vdf",
+      "module_dir": "VIP_Vips",
+      "build_root": "VIP_Vips/source",
+      "plugin_name": "vip_vips",
+      "plugin_alias": "vip_vips"
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿#ifndef _INCLUDE_METAMOD_SOURCE_STUB_PLUGIN_H_
+#ifndef _INCLUDE_METAMOD_SOURCE_STUB_PLUGIN_H_
 #define _INCLUDE_METAMOD_SOURCE_STUB_PLUGIN_H_
 
 #include <ISmmPlugin.h>
@@ -14,7 +14,7 @@
 #include "CCSPlayerController.h"
 #include "CParticleSystem.h"
 #include "iserver.h"
-#include "include/vip.h"
+#include "vip.h"
 #include "include/menus.h"
 #include "include/fortnite_hits.h"
 #include <ctime>

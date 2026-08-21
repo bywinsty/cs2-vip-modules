@@ -26,8 +26,8 @@ bool vip_bhop::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool
 bool vip_bhop::Unload(char *error, size_t maxlen)
 {
 	ConVar_Unregister();
-	delete g_pUtils;
-	delete g_pVIPCore;
+	g_pUtils = nullptr;
+	g_pVIPCore = nullptr;
 	return true;
 }
 
@@ -98,7 +98,7 @@ const char *vip_bhop::GetVersion()
 
 const char *vip_bhop::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_bhop::GetLogTag()

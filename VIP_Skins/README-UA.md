@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Skins](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Skins)
+# [VIP] [Skins](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Skins)
 
 ## Дозволяє VIP-гравцям вибирати моделі гравців.
 

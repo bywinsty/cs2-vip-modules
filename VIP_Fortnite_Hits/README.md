@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Fortnite Hits](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Fortnite_Hits)
+# [VIP] [Fortnite Hits](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Fortnite_Hits)
 
 ## Connects VIP access to the Fortnite Hits plugin. This module does not render the damage display itself; it calls the external plugin's `IFortniteHitsApi` to grant or revoke access for VIP players.
 

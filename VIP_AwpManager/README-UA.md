@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Awp Manager](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_AwpManager)
+# [VIP] [Awp Manager](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_AwpManager)
 
 ## Дозволяє змінювати кількість набоїв AWP у магазині для VIP-гравців.
 

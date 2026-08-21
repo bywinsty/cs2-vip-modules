@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Time](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Time)
+# [VIP] [Time](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Time)
 
 ## Регулярно выдаёт VIP-статус в заданный промежуток времени.
 

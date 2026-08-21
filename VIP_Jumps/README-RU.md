@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Jumps](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Jumps)
+# [VIP] [Jumps](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Jumps)
 
 ## Добавляет VIP-игроку дополнительные прыжки.
 

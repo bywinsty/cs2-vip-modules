@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Speed](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Speed)
+# [VIP] [Speed](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Speed)
 
 ## Дозволяє VIP-гравцям змінювати швидкість руху. Допустимий діапазон — від `0.1` до `2.0`; стандартне значення — `1.0`.
 

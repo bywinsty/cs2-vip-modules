@@ -119,7 +119,7 @@ const char* fh_vip::GetVersion()
 
 const char* fh_vip::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *fh_vip::GetLogTag()

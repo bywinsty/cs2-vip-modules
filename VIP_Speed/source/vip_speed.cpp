@@ -48,8 +48,8 @@ void VIP_OnPlayerSpawn(int iSlot, int iTeam, bool bIsVIP)
 
 bool VIPSpeed::Unload(char* error, size_t maxlen)
 {
-    delete g_pVIPCore;
-    delete g_pUtils;
+    g_pVIPCore = nullptr;
+    g_pUtils = nullptr;
     return true;
 }
 
@@ -102,7 +102,7 @@ const char* VIPSpeed::GetVersion()
 
 const char* VIPSpeed::GetDate()
 {
-    return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char* VIPSpeed::GetLogTag()

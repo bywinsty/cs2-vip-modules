@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Base Functions](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_BaseFunctions)
+# [VIP] [Base Functions](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_BaseFunctions)
 
 ## Добавляет в VIP-группы настройки здоровья, брони, шлема, дефузера и денег. Значения применяются при возрождении VIP-игрока после заданного раунда.
 

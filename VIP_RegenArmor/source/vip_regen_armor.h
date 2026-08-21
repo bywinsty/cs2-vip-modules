@@ -13,7 +13,7 @@
 #include "CGameRules.h"
 #include "iserver.h"
 #include "include/menus.h"
-#include "include/vip.h"
+#include "vip.h"
 #include <ctime>
 
 class vip_regen_armor : public ISmmPlugin, public IMetamodListener

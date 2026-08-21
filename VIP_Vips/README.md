@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [VIPs](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Vips)
+# [VIP] [VIPs](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Vips)
 
 ## Lists connected VIP players with `!vips`/`vips`.
 

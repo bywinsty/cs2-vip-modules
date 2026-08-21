@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Vips](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Vips)
+# [VIP] [Vips](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Vips)
 
 ## Показывает список игроков со статусом VIP.
 

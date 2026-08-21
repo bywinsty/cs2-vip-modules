@@ -11,7 +11,7 @@
 #include "CCSPlayerController.h"
 #include "CGameRules.h"
 #include "iserver.h"
-#include "include/vip.h"
+#include "vip.h"
 #include "include/menus.h"
 #include <string>
 #include <ctime>

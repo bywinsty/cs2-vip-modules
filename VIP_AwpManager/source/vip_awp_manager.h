@@ -1,4 +1,4 @@
-﻿#ifndef _INCLUDE_METAMOD_SOURCE_STUB_PLUGIN_H_
+#ifndef _INCLUDE_METAMOD_SOURCE_STUB_PLUGIN_H_
 #define _INCLUDE_METAMOD_SOURCE_STUB_PLUGIN_H_
 
 #include <ISmmPlugin.h>
@@ -15,7 +15,7 @@
 #include <KeyValues.h>
 #include "CCSPlayerController.h"
 #include "include/menus.h"
-#include "include/vip.h"
+#include "vip.h"
 
 class vip_awp_manager final : public ISmmPlugin, public IMetamodListener
 {

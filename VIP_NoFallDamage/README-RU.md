@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [No Fall Damage](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_NoFallDamage)
+# [VIP] [No Fall Damage](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_NoFallDamage)
 
 ## Позволяет VIP-игрокам отключить урон от падения.
 

@@ -19,12 +19,12 @@ for sdk_target in MMSPlugin.sdk_targets:
     
     binary.compiler.cxxincludes += [
       os.path.join(builder.sourcePath, 'include'),
-      os.path.join(builder.sourcePath, '..', 'SchemaEntity'),
+      MMSPlugin.schemaentity_root,
     ]
 
     binary.sources += [
       'vip_healthshot.cpp',
-      os.path.join('..', 'SchemaEntity', 'schemasystem.cpp'),
+      os.path.join(MMSPlugin.schemaentity_root, 'schemasystem.cpp'),
     ]
 
     if cxx.target.arch == 'x86':

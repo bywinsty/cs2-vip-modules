@@ -171,7 +171,7 @@ const char* vip_awp_manager::GetVersion()
 
 const char* vip_awp_manager::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_awp_manager::GetLogTag()
