@@ -13,7 +13,7 @@
 #include "CC4.h"
 #include "CGameRules.h"
 #include "iserver.h"
-#include "include/vip.h"
+#include "vip.h"
 #include "include/menus.h"
 #include <ctime>
 #include <deque>

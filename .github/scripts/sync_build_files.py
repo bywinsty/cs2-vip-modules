@@ -94,6 +94,15 @@ def synchronize(write_changes: bool) -> list[str]:
         build_root = ROOT / package["build_root"]
         if not build_root.is_dir() or not (build_root / "AMBuilder").is_file():
             raise ValueError(f"{module}: invalid build_root {package['build_root']}")
+        source_files = sorted(
+            path for path in build_root.rglob("*")
+            if path.is_file() and path.suffix in {".h", ".hpp", ".cc", ".cpp"}
+        )
+        source_text = "\n".join(path.read_text(encoding="utf-8") for path in source_files)
+        if 'include/vip.h' in source_text:
+            raise ValueError(f"{module}: VIP SDK must be included as vip.h from the canonical include root")
+        if not re.search(r'#include\s*[<\"]vip\.h[>\"]', source_text):
+            raise ValueError(f"{module}: canonical vip.h include is missing")
         for name in GENERATED:
             expected = (TEMPLATES / name).read_text(encoding="utf-8")
             target = build_root / name

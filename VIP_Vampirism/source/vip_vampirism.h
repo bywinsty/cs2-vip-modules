@@ -12,7 +12,7 @@
 #include "CCSPlayerController.h"
 #include "iserver.h"
 class CCSGameRules;
-#include "include/vip.h"
+#include "vip.h"
 #include "include/menus.h"
 #include <ctime>
 
