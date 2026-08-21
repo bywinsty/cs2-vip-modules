@@ -112,7 +112,7 @@ const char *VIP_KS::GetVersion()
 
 const char *VIP_KS::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *VIP_KS::GetLogTag()

@@ -98,7 +98,7 @@ const char *vip_bhop::GetVersion()
 
 const char *vip_bhop::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_bhop::GetLogTag()

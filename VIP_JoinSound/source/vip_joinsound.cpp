@@ -1,4 +1,4 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include "vip_joinsound.h"
 
 VIPJoinSound g_VIPJoinSound;
@@ -115,7 +115,7 @@ const char *VIPJoinSound::GetVersion()
 
 const char *VIPJoinSound::GetDate()
 {
-    return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *VIPJoinSound::GetLogTag()

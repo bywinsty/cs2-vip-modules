@@ -103,7 +103,7 @@ const char* GravityModule::GetVersion()
 
 const char* GravityModule::GetDate()
 {
-    return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char* GravityModule::GetLogTag()

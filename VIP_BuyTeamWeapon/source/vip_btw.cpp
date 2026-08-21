@@ -279,7 +279,7 @@ const char *vip_btw::GetVersion()
 
 const char *vip_btw::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_btw::GetLogTag()

@@ -103,6 +103,8 @@ def synchronize(write_changes: bool) -> list[str]:
             raise ValueError(f"{module}: VIP SDK must be included as vip.h from the canonical include root")
         if not re.search(r'#include\s*[<\"]vip\.h[>\"]', source_text):
             raise ValueError(f"{module}: canonical vip.h include is missing")
+        if "__DATE__" in source_text or "__TIME__" in source_text:
+            raise ValueError(f"{module}: non-reproducible compiler date/time macro remains")
         for name in GENERATED:
             expected = (TEMPLATES / name).read_text(encoding="utf-8")
             target = build_root / name

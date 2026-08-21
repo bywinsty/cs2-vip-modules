@@ -118,7 +118,7 @@ const char *vip_healthshot::GetVersion()
 
 const char *vip_healthshot::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_healthshot::GetLogTag()

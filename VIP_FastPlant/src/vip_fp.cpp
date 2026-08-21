@@ -104,7 +104,7 @@ const char *vip_fp::GetVersion()
 
 const char *vip_fp::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_fp::GetLogTag()

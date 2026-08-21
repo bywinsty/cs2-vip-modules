@@ -121,7 +121,7 @@ const char *VIPEndurance::GetVersion()
 
 const char *VIPEndurance::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *VIPEndurance::GetLogTag()

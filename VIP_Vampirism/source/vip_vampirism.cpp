@@ -125,7 +125,7 @@ const char *VIPvampirism::GetVersion()
 
 const char *VIPvampirism::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *VIPvampirism::GetLogTag()

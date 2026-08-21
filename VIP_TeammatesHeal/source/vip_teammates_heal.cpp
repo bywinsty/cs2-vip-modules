@@ -228,7 +228,7 @@ const char* HealModule::GetVersion()
 
 const char* HealModule::GetDate()
 {
-    return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char* HealModule::GetLogTag()

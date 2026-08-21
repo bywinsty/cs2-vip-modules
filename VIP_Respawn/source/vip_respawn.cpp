@@ -164,7 +164,7 @@ const char *vip_respawn::GetVersion()
 
 const char *vip_respawn::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_respawn::GetLogTag()

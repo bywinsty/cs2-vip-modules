@@ -156,7 +156,7 @@ const char *VIPFov::GetVersion()
 
 const char *VIPFov::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *VIPFov::GetLogTag()

@@ -140,7 +140,7 @@ const char *vip_jumps::GetVersion()
 
 const char *vip_jumps::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_jumps::GetLogTag()

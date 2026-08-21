@@ -105,7 +105,7 @@ const char *vip_sd::GetVersion()
 
 const char *vip_sd::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_sd::GetLogTag()

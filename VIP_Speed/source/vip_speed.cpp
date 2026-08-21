@@ -102,7 +102,7 @@ const char* VIPSpeed::GetVersion()
 
 const char* VIPSpeed::GetDate()
 {
-    return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char* VIPSpeed::GetLogTag()

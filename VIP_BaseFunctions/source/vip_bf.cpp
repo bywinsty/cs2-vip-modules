@@ -172,7 +172,7 @@ const char *vip_bf::GetVersion()
 
 const char *vip_bf::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_bf::GetLogTag()

@@ -156,7 +156,7 @@ const char* vip_penis::GetVersion()
 
 const char* vip_penis::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_penis::GetLogTag()

@@ -110,7 +110,7 @@ const char* NoFallDamageModule::GetVersion()
 
 const char* NoFallDamageModule::GetDate()
 {
-    return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char* NoFallDamageModule::GetLogTag()
@@ -137,4 +137,3 @@ const char* NoFallDamageModule::GetURL()
 {
     return "https://discord.com/invite/g798xERK5Y";
 }
- 

@@ -143,7 +143,7 @@ const char* vip_duckspeed::GetVersion()
 
 const char* vip_duckspeed::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_duckspeed::GetLogTag()

@@ -174,7 +174,7 @@ const char *vip_smoke::GetVersion()
 
 const char *vip_smoke::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_smoke::GetLogTag()

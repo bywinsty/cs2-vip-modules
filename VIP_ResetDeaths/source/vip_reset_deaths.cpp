@@ -154,7 +154,7 @@ const char* VIPResetDeaths::GetVersion()
 
 const char* VIPResetDeaths::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char* VIPResetDeaths::GetLogTag()

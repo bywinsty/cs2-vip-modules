@@ -249,7 +249,7 @@ const char *vip_skins::GetVersion()
 
 const char *vip_skins::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_skins::GetLogTag()
