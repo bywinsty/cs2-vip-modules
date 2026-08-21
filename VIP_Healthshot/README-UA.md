@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Healthshot](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Healthshot)
+# [VIP] [Healthshot](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Healthshot)
 
 ## Видає VIP-гравцям налаштовану кількість healthshot під час появи.
 

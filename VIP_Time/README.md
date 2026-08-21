@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Time](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Time)
+# [VIP] [Time](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Time)
 
 ## Grants a VIP group during a recurring time window. The module checks the window once per minute, grants the configured group to connected non-VIP players, and removes only the status it granted when the window ends.
 

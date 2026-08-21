@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Gravity](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Gravity)
+# [VIP] [Gravity](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Gravity)
 
 ## Позволяет VIP-игрокам изменять уровень гравитации. Допустимый диапазон — от `0.1` до `2.0`; стандартное значение — `1.0`.
 

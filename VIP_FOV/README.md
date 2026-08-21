@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [FOV](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_FOV)
+# [VIP] [FOV](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_FOV)
 
 ## Allows VIP players to change their viewing angle
 

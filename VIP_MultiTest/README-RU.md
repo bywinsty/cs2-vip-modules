@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [MultiTest](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_MultiTest)
+# [VIP] [MultiTest](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_MultiTest)
 
 ## Позволяет обычным игрокам получить VIP-статус для настроенной группы и на заданное время. Перед установкой настройте `addons/configs/vip/vip_multitest.ini`.
 

@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [DuckSpeed](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_DuckSpeed)
+# [VIP] [DuckSpeed](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_DuckSpeed)
 
 ## Allows VIP players to change their crouch speed.
 

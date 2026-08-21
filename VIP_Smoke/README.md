@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Colored Smoke](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Smoke)
+# [VIP] [Colored Smoke](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Smoke)
 
 ## Adds the ability for VIP players to have multi-colored smoke
 

@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Regen HP](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_RegenHP)
+# [VIP] [Regen HP](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_RegenHP)
 
 ## Додає VIP-гравцям регенерацію здоров'я.
 

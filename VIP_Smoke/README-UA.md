@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Smoke](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Smoke)
+# [VIP] [Smoke](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Smoke)
 
 ## Дозволяє VIP-гравцям використовувати кольоровий дим.
 

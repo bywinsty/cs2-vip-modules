@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Join Sound](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_JoinSound)
+# [VIP] [Join Sound](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_JoinSound)
 
 ## Відтворює звук для всіх підключених гравців, які не є ботами, коли приєднується VIP-гравець.
 

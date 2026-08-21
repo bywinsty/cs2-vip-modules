@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Fast Plant](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_FastPlant)
+# [VIP] [Fast Plant](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_FastPlant)
 
 ## Позволяет VIP-игроку быстрее устанавливать бомбу.
 

@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [KillScreen](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_KillScreen)
+# [VIP] [KillScreen](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_KillScreen)
 
 ## Показывает цветной эффект после убийства VIP-атакующим другого игрока.
 

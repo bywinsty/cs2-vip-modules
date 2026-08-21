@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Test](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Test)
+# [VIP] [Test](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Test)
 
 ## Allows a regular player to claim temporary VIP status using a configured group and duration.
 

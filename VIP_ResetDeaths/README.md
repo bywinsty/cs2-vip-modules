@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Reset Deaths](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_ResetDeaths)
+# [VIP] [Reset Deaths](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_ResetDeaths)
 
 ## Lets VIP players reset their deaths from the VIP menu or with `!rd`/`rd`. It also provides a separate kills reset command: `!rs`/`rs`.
 

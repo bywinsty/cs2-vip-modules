@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Reset Deaths](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_ResetDeaths)
+# [VIP] [Reset Deaths](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_ResetDeaths)
 
 ## Позволяет VIP-игрокам сбрасывать количество смертей через VIP-меню или командами `!rd`/`rd`. Отдельно доступен сброс убийств командами `!rs`/`rs`.
 

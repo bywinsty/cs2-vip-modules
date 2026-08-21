@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Tag](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Tag)
+# [VIP] [Tag](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Tag)
 
 ## Adds the ability for VIP players to have a clan tag in TAB
 

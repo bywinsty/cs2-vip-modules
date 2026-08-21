@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Rainbow Model](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_RainbowModel)
+# [VIP] [Rainbow Model](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_RainbowModel)
 
 ## Adds the ability for VIP players to put a colored model
 

@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Rainbow Model](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_RainbowModel)
+# [VIP] [Rainbow Model](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_RainbowModel)
 
 ## Дозволяє VIP-гравцям використовувати різнокольорову модель.
 

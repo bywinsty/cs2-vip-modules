@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [AntiFlash](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_AntiFlash)
+# [VIP] [AntiFlash](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_AntiFlash)
 
 ## Добавляет VIP-игрокам возможность не ослепляться от собственных гранат и гранат союзников.
 

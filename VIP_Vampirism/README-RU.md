@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Vampirism](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Vampirism)
+# [VIP] [Vampirism](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Vampirism)
 
 ## Восстанавливает здоровье VIP-игрока в зависимости от урона, нанесённого врагам.
 

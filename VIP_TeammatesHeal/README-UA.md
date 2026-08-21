@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Teammates Heal](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_TeammatesHeal)
+# [VIP] [Teammates Heal](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_TeammatesHeal)
 
 ## Зцілює напарника, коли VIP завдає йому шкоди зброєю, що не входить до чорного списку.
 

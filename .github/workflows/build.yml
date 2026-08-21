@@ -2,13 +2,11 @@ name: Build VIP Modules
 on:
   push:
     branches:
-      - main
-      - PR
+      - Modules
       - dev
   pull_request:
     branches:
-      - main
-      - PR
+      - Modules
   workflow_dispatch:
 
 permissions:
@@ -286,7 +284,7 @@ jobs:
           path: cache-metrics/prepare-dependencies.json
           archive: true
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
   build-module:
     needs: [discover, prepare-dependencies]
@@ -472,7 +470,7 @@ jobs:
           path: cache-metrics/${{ matrix.module }}.json
           archive: true
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
       - name: Prepare compatibility patches
         run: |
@@ -553,10 +551,11 @@ jobs:
       - name: Upload module archive
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
+          name: ${{ matrix.module }}.tar.gz
           path: ${{ matrix.module }}.tar.gz
-          archive: false
+          archive: true
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
 
   package-release:
     name: Package release artifacts
@@ -806,26 +805,29 @@ jobs:
       - name: Upload combined module archive
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
+          name: VIP_All_Modules.tar.gz
           path: release/VIP_All_Modules.tar.gz
-          archive: false
+          archive: true
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
 
       - name: Upload legacy combined module archive alias
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
+          name: VIP_Modules.tar.gz
           path: release/VIP_Modules.tar.gz
-          archive: false
+          archive: true
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
 
       - name: Upload build information
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
+          name: Modules_Build_Info.zip
           path: release/Modules_Build_Info.zip
-          archive: false
+          archive: true
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
   build-summary:
     needs: [discover, prepare-dependencies, build-module, package-release]
     if: always()
@@ -863,7 +865,7 @@ jobs:
           path: cache-metrics-summary.json
           archive: true
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 30
 
       - name: Verify build results
         env:
@@ -880,17 +882,18 @@ jobs:
   create-release:
     name: Update GitHub release
     needs: [discover, build-summary]
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.discover.result == 'success' && needs.build-summary.result == 'success' }}
+    if: ${{ github.event_name == 'push' && (github.ref_name == 'Modules' || github.ref_name == 'dev') && needs.discover.result == 'success' && needs.build-summary.result == 'success' }}
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     concurrency:
-      group: release-1.0-bywinsty
+      group: release-${{ github.ref_name }}
       cancel-in-progress: false
     env:
       GH_TOKEN: ${{ github.token }}
-      RELEASE_TAG: 1.0-bywinsty
-      RELEASE_TITLE: 1.0-bywinsty
+      RELEASE_TAG: ${{ github.ref_name == 'Modules' && '1.0-bywinsty' || 'dev' }}
+      RELEASE_TITLE: ${{ github.ref_name == 'Modules' && '1.0-bywinsty' || 'dev' }}
+      IS_PRERELEASE: ${{ github.ref_name == 'dev' }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -924,19 +927,19 @@ jobs:
           print("Validated 35 module archives and both combined archive names")
           PY
 
-      - name: Check current main tip
-        id: main-tip
+      - name: Check current branch tip
+        id: branch-tip
         run: |
-          current_tip="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          current_tip="$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/$GITHUB_REF_NAME" --jq '.object.sha')"
           if [[ "$current_tip" != "$GITHUB_SHA" ]]; then
-            echo "Skipping stale run: main tip is $current_tip, workflow SHA is $GITHUB_SHA"
+            echo "Skipping stale run: $GITHUB_REF_NAME tip is $current_tip, workflow SHA is $GITHUB_SHA"
             echo "stale=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           echo "stale=false" >> "$GITHUB_OUTPUT"
 
       - name: Move release tag
-        if: steps.main-tip.outputs.stale != 'true'
+        if: steps.branch-tip.outputs.stale != 'true'
         run: |
           tag_ref="repos/$GITHUB_REPOSITORY/git/refs/tags/$RELEASE_TAG"
           if gh api "$tag_ref" >/dev/null 2>&1; then
@@ -946,35 +949,40 @@ jobs:
           fi
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG" --jq '.object.sha')" = "$GITHUB_SHA"
 
-      - name: Delete existing release
-        if: steps.main-tip.outputs.stale != 'true'
+      - name: Create or update release
+        if: steps.branch-tip.outputs.stale != 'true'
         run: |
+          notes=$'Automated release from '"$GITHUB_REF_NAME"$'.\n\nCommit: '"$GITHUB_SHA"$'\nWorkflow run: https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release delete "$RELEASE_TAG" \
+            gh release edit "$RELEASE_TAG" \
               --repo "$GITHUB_REPOSITORY" \
-              --yes
+              --title "$RELEASE_TITLE" \
+              --notes "$notes" \
+              --draft=false \
+              --prerelease="$IS_PRERELEASE"
+          else
+            create_args=(
+              "$RELEASE_TAG"
+              --repo "$GITHUB_REPOSITORY"
+              --target "$GITHUB_SHA"
+              --title "$RELEASE_TITLE"
+              --notes "$notes"
+            )
+            if [[ "$IS_PRERELEASE" == "true" ]]; then
+              create_args+=(--prerelease)
+            fi
+            gh release create "${create_args[@]}"
           fi
 
-      - name: Create replacement draft release
-        if: steps.main-tip.outputs.stale != 'true'
-        run: |
-          notes=$'Automated release from main.\n\nCommit: '"$GITHUB_SHA"$'\nWorkflow run: https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"
-          gh release create "$RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --target "$GITHUB_SHA" \
-            --title "$RELEASE_TITLE" \
-            --notes "$notes" \
-            --draft
-
       - name: Upload release assets
-        if: steps.main-tip.outputs.stale != 'true'
+        if: steps.branch-tip.outputs.stale != 'true'
         run: |
           for asset in release-assets/*.tar.gz; do
             gh release upload "$RELEASE_TAG" "$asset"               --repo "$GITHUB_REPOSITORY"               --clobber
           done
 
       - name: Verify release assets
-        if: steps.main-tip.outputs.stale != 'true'
+        if: steps.branch-tip.outputs.stale != 'true'
         run: |
           mapfile -t expected < <(find release-assets -maxdepth 1 -type f -name '*.tar.gz' -printf '%f\n' | sort)
           mapfile -t actual < <(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)
@@ -991,10 +999,3 @@ jobs:
           fi
           test "${#actual[@]}" -eq 37
           echo "Release contains exactly 37 tar.gz assets, including the legacy combined archive alias."
-
-      - name: Publish replacement release
-        if: steps.main-tip.outputs.stale != 'true'
-        run: |
-          gh release edit "$RELEASE_TAG" \
-            --repo "$GITHUB_REPOSITORY" \
-            --draft=false

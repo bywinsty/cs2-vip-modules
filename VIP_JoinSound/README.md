@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Join Sound](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_JoinSound)
+# [VIP] [Join Sound](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_JoinSound)
 
 ## Plays a sound for all connected non-bot players when a VIP joins.
 

@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Respawn](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Respawn)
+# [VIP] [Respawn](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Respawn)
 
 ## Adds the ability for a VIP player to revive
 

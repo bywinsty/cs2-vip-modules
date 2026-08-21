@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Fast Defuse](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_FastDefuse)
+# [VIP] [Fast Defuse](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_FastDefuse)
 
 ## Добавляет VIP-игрокам возможность быстрее обезвреживать бомбу.
 

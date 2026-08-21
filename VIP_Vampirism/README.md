@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Vampirism](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Vampirism)
+# [VIP] [Vampirism](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Vampirism)
 
 ## Allows players to regenerate health when dealing damage to enemies
 
