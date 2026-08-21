@@ -8,6 +8,11 @@ IUtilsApi* g_pUtils;
 
 IVEngineServer2* engine = nullptr;
 
+CGameEntitySystem* GameEntitySystem()
+{
+	return g_pUtils->GetCGameEntitySystem();
+}
+
 char szGroup[128];
 int iTime;
 int iTimeout;

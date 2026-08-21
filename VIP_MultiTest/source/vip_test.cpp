@@ -9,6 +9,11 @@ IMenusApi* g_pMenus;
 
 IVEngineServer2* engine = nullptr;
 
+CGameEntitySystem* GameEntitySystem()
+{
+	return g_pUtils->GetCGameEntitySystem();
+}
+
 int g_iType;
 
 struct VIPData
