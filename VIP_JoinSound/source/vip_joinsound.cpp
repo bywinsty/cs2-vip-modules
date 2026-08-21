@@ -25,9 +25,9 @@ bool VIPJoinSound::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, 
 
 bool VIPJoinSound::Unload(char *error, size_t maxlen)
 {
-    delete g_pVIPCore;
+    g_pVIPCore = nullptr;
     g_pUtils->ClearAllHooks(g_PLID);
-    delete g_pUtils;
+    g_pUtils = nullptr;
     return true;
 }
 void OnPlayerConnectFull(const char* szName, IGameEvent* pEvent, bool bDontBroadcast)

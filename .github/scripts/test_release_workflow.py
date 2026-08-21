@@ -32,6 +32,8 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
         self.assertIn("github.event_name == 'push'", self.release_job)
         self.assertIn("github.ref_name == 'Modules'", self.release_job)
         self.assertIn("github.ref_name == 'dev'", self.release_job)
+        self.assertIn("vars.RUNTIME_VALIDATION_SHA == github.sha", self.release_job)
+        self.assertIn("vars.RUNTIME_VALIDATION_REPORT_URL != ''", self.release_job)
         self.assertIn("needs.discover.result == 'success'", self.release_job)
         self.assertIn("needs.build-summary.result == 'success'", self.release_job)
         self.assertNotIn("github.event_name == 'pull_request'", self.release_job)
@@ -39,6 +41,8 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
 
     def test_release_permissions_and_serialization(self):
         self.assertEqual(self.workflow.count("contents: write"), 1)
+        self.assertEqual(self.workflow.count("id-token: write"), 1)
+        self.assertEqual(self.workflow.count("attestations: write"), 1)
         self.assertIn("permissions:\n      contents: write", self.release_job)
         self.assertIn("GH_TOKEN: ${{ github.token }}", self.release_job)
         self.assertIn("concurrency:", self.release_job)
@@ -72,10 +76,15 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
         self.assertIn('expected.add("VIP_Modules.tar.gz")', self.release_job)
         self.assertIn("if len(actual) != 37", self.release_job)
         self.assertIn("35 module archives and both combined archive names", self.release_job)
+        self.assertIn("VIP_All_Modules.spdx.json", self.release_job)
+        self.assertIn("actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d", self.release_job)
+        self.assertIn("sbom-path: release-assets/VIP_All_Modules.spdx.json", self.release_job)
+        self.assertIn("gh attestation verify", self.release_job)
+        self.assertIn("verify_spdx_subject.py", self.release_job)
         self.assertIn("gh release upload", self.release_job)
         self.assertIn("--clobber", self.release_job)
         self.assertIn("Verify release assets", self.release_job)
-        self.assertIn('test "${#actual[@]}" -eq 37', self.release_job)
+        self.assertIn('test "${#actual[@]}" -eq 38', self.release_job)
 
     def test_combined_archive_contains_nested_modules_archive(self):
         package_job = self.workflow.split("  package-release:", 1)[1].split("  build-summary:", 1)[0]

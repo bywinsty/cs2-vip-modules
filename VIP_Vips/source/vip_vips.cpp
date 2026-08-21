@@ -40,7 +40,7 @@ bool vip_vips::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool
 
 bool vip_vips::Unload(char *error, size_t maxlen)
 {
-	delete g_pVIPCore;
+	g_pVIPCore = nullptr;
 	return true;
 }
 

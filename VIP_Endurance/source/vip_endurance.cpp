@@ -28,7 +28,7 @@ bool VIPEndurance::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, 
 bool VIPEndurance::Unload(char *error, size_t maxlen)
 {
 	SH_REMOVE_HOOK(IServerGameDLL, GameFrame, g_pSource2Server, SH_MEMBER(this, &VIPEndurance::GameFrame), true);
-	delete g_pVIPCore;
+	g_pVIPCore = nullptr;
 	return true;
 }
 

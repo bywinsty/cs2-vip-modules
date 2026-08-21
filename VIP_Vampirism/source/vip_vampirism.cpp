@@ -24,7 +24,7 @@ bool VIPvampirism::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, 
 
 bool VIPvampirism::Unload(char *error, size_t maxlen)
 {
-	delete g_pVIPCore;
+	g_pVIPCore = nullptr;
 	return true;
 }
 

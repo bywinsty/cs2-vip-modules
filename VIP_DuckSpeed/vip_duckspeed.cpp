@@ -96,8 +96,8 @@ bool vip_duckspeed::Load(PluginId id, ISmmAPI* ismm, char* error, size_t maxlen,
 bool vip_duckspeed::Unload(char *error, size_t maxlen)
 {
 	ConVar_Unregister();
-	delete g_pVIPCore;
-	delete g_pUtils;
+	g_pVIPCore = nullptr;
+	g_pUtils = nullptr;
 	return true;
 }
 

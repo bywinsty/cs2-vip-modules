@@ -144,8 +144,8 @@ void vip_rm::GameFrame(bool simulating, bool bFirstTick, bool bLastTick)
 bool vip_rm::Unload(char *error, size_t maxlen)
 {
 	SH_REMOVE_HOOK(IServerGameDLL, GameFrame, g_pSource2Server, SH_MEMBER(this, &vip_rm::GameFrame), true);
-	delete g_pVIPCore;
-	delete g_pUtils;
+	g_pVIPCore = nullptr;
+	g_pUtils = nullptr;
 	return true;
 }
 

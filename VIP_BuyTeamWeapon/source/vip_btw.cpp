@@ -36,8 +36,8 @@ bool vip_btw::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool 
 
 bool vip_btw::Unload(char *error, size_t maxlen)
 {
-	delete g_pVIPCore;
-	delete g_pUtils;
+	g_pVIPCore = nullptr;
+	g_pUtils = nullptr;
 	return true;
 }
 

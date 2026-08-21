@@ -68,7 +68,7 @@ bool vip_test::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool
 
 bool vip_test::Unload(char *error, size_t maxlen)
 {
-	delete g_pVIPCore;
+	g_pVIPCore = nullptr;
 	return true;
 }
 
@@ -83,7 +83,7 @@ void vip_test::AllPluginsLoaded()
 	int ret;
 	g_pVIPCore = (IVIPApi*)g_SMAPI->MetaFactory(VIP_INTERFACE, &ret, NULL);
 
-	if (ret == META_IFACE_FAILED)
+	if (ret == META_IFACE_FAILED || g_pVIPCore == nullptr)
 	{
 		char error[64];
 		V_strncpy(error, "Failed to lookup vip core. Aborting", 64);
@@ -92,9 +92,20 @@ void vip_test::AllPluginsLoaded()
 		engine->ServerCommand(sBuffer.c_str());
 		return;
 	}
+	int legacyRet;
+	IVIPApi001* legacyApi = static_cast<IVIPApi001*>(
+		g_SMAPI->MetaFactory(VIP_INTERFACE_LEGACY, &legacyRet, NULL)
+	);
+	if (legacyRet == META_IFACE_FAILED || legacyApi == nullptr)
+	{
+		ConColorMsg(Color(255, 0, 0, 255), "[%s] Legacy VIP ABI probe failed\n", GetLogTag());
+		std::string sBuffer = "meta unload "+std::to_string(g_PLID);
+		engine->ServerCommand(sBuffer.c_str());
+		return;
+	}
 	g_pUtils = (IUtilsApi*)g_SMAPI->MetaFactory(Utils_INTERFACE, &ret, NULL);
 
-	if (ret == META_IFACE_FAILED)
+	if (ret == META_IFACE_FAILED || g_pUtils == nullptr)
 	{
 		char error[64];
 		V_strncpy(error, "Failed to lookup utils api. Aborting", 64);
@@ -103,6 +114,7 @@ void vip_test::AllPluginsLoaded()
 		engine->ServerCommand(sBuffer.c_str());
 		return;
 	}
+	ConColorMsg(Color(0, 255, 0, 255), "[VIP-CI] ABI legacy=ok v2=ok\n");
 	g_pVIPCore->VIP_OnVIPLoaded(VIP_OnVIPLoaded);
 }
 

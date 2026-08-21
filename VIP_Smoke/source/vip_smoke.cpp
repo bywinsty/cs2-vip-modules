@@ -27,8 +27,8 @@ bool vip_smoke::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 bool vip_smoke::Unload(char *error, size_t maxlen)
 {
 	g_pGameEntitySystem->RemoveListenerEntity(&g_EntityListener);
-	delete g_pVIPCore;
-	delete g_pUtils;
+	g_pVIPCore = nullptr;
+	g_pUtils = nullptr;
 	return true;
 }
 

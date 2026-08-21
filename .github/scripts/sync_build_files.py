@@ -105,6 +105,8 @@ def synchronize(write_changes: bool) -> list[str]:
             raise ValueError(f"{module}: canonical vip.h include is missing")
         if "__DATE__" in source_text or "__TIME__" in source_text:
             raise ValueError(f"{module}: non-reproducible compiler date/time macro remains")
+        if re.search(r"\bdelete\s+g_p(?:VIPCore|Utils|Menus)\s*;", source_text):
+            raise ValueError(f"{module}: borrowed factory interface must not be deleted")
         for name in GENERATED:
             expected = (TEMPLATES / name).read_text(encoding="utf-8")
             target = build_root / name

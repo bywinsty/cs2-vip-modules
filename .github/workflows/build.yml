@@ -18,7 +18,7 @@ env:
   HL2SDK_REF: 80cf8554d716a3841fe0680013cae3411a056a8d
   SCHEMAENTITY_REF: e7965b3c83ec684d44584ee6457c5482ee5d9db1
   MANIFEST_REF: 20b3a014264b38908c4a5d4eb263ba2c488f3dc1
-  VIP_CORE_REF: 5dbace8533eb7b003f8c696ba35cc35659e9c778
+  VIP_CORE_REF: 65b0934bec8bbc571ee5be996d2643d75851785b
   CACHE_VERSION: v2
 
 jobs:
@@ -55,6 +55,10 @@ jobs:
         run: python3 .github/scripts/sync_build_files.py
       - name: Test reproducible archive helper
         run: python3 .github/scripts/test_reproducible_archive.py
+      - name: Test SPDX SBOM generator
+        run: python3 .github/scripts/test_generate_spdx_sbom.py
+      - name: Test runtime harness safety
+        run: python3 .github/scripts/test_runtime_validate.py
       - name: Verify vendored VIP SDK against pinned core
         run: |
           core_root="$RUNNER_TEMP/cs2-vip-core"
@@ -723,6 +727,42 @@ jobs:
           print(f"Validated {len(expected_addons)} package files and {len(expected_module_archives)} module archives")
           PY
 
+      - name: Generate and verify combined SPDX SBOM
+        run: |
+          python3 .github/scripts/generate_spdx_sbom.py \
+            --name cs2-vip-modules \
+            --version "$GITHUB_SHA" \
+            --repository "$GITHUB_REPOSITORY" \
+            --archive release/VIP_All_Modules.tar.gz \
+            --root combined-root \
+            --requirements .github/ci-requirements.txt \
+            --git-dependency "VIP-Core=https://github.com/bywinsty/cs2-vip#$VIP_CORE_REF" \
+            --git-dependency "AMBuild=https://github.com/alliedmodders/ambuild#$AMBUILD_REF" \
+            --git-dependency "Metamod-Source=https://github.com/alliedmodders/metamod-source#$MMS_REF" \
+            --git-dependency "HL2SDK-CS2=https://github.com/alliedmodders/hl2sdk#$HL2SDK_REF" \
+            --git-dependency "HL2SDK-Manifests=https://github.com/alliedmodders/hl2sdk-manifests#$MANIFEST_REF" \
+            --git-dependency "SchemaEntity=https://github.com/pisex/SchemaEntity#$SCHEMAENTITY_REF" \
+            --output release/VIP_All_Modules.spdx.json
+          python3 .github/scripts/verify_spdx_subject.py \
+            --archive release/VIP_All_Modules.tar.gz \
+            --sbom release/VIP_All_Modules.spdx.json
+          python3 .github/scripts/generate_spdx_sbom.py \
+            --name cs2-vip-modules \
+            --version "$GITHUB_SHA" \
+            --repository "$GITHUB_REPOSITORY" \
+            --archive release/VIP_All_Modules.tar.gz \
+            --root combined-root \
+            --requirements .github/ci-requirements.txt \
+            --git-dependency "VIP-Core=https://github.com/bywinsty/cs2-vip#$VIP_CORE_REF" \
+            --git-dependency "AMBuild=https://github.com/alliedmodders/ambuild#$AMBUILD_REF" \
+            --git-dependency "Metamod-Source=https://github.com/alliedmodders/metamod-source#$MMS_REF" \
+            --git-dependency "HL2SDK-CS2=https://github.com/alliedmodders/hl2sdk#$HL2SDK_REF" \
+            --git-dependency "HL2SDK-Manifests=https://github.com/alliedmodders/hl2sdk-manifests#$MANIFEST_REF" \
+            --git-dependency "SchemaEntity=https://github.com/pisex/SchemaEntity#$SCHEMAENTITY_REF" \
+            --output release/VIP_All_Modules.repro.spdx.json
+          cmp release/VIP_All_Modules.spdx.json release/VIP_All_Modules.repro.spdx.json
+          rm release/VIP_All_Modules.repro.spdx.json
+
       - name: Create build reports
         env:
           MODULES_JSON: ${{ needs.discover.outputs.modules }}
@@ -846,6 +886,15 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
+      - name: Upload combined SPDX SBOM
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: VIP_All_Modules.spdx.json
+          path: release/VIP_All_Modules.spdx.json
+          archive: true
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Upload build information
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
@@ -908,10 +957,25 @@ jobs:
   create-release:
     name: Update GitHub release
     needs: [discover, build-summary]
-    if: ${{ github.event_name == 'push' && (github.ref_name == 'Modules' || github.ref_name == 'dev') && needs.discover.result == 'success' && needs.build-summary.result == 'success' }}
+    if: >-
+      ${{
+        github.event_name == 'push' &&
+        (
+          github.ref_name == 'dev' ||
+          (
+            github.ref_name == 'Modules' &&
+            vars.RUNTIME_VALIDATION_SHA == github.sha &&
+            vars.RUNTIME_VALIDATION_REPORT_URL != ''
+          )
+        ) &&
+        needs.discover.result == 'success' &&
+        needs.build-summary.result == 'success'
+      }}
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      id-token: write
+      attestations: write
     concurrency:
       group: release-${{ github.ref_name }}
       cancel-in-progress: false
@@ -920,6 +984,7 @@ jobs:
       RELEASE_TAG: ${{ github.ref_name == 'Modules' && '1.0-bywinsty' || 'dev' }}
       RELEASE_TITLE: ${{ github.ref_name == 'Modules' && '1.0-bywinsty' || 'dev' }}
       IS_PRERELEASE: ${{ github.ref_name == 'dev' }}
+      RUNTIME_VALIDATION_REPORT_URL: ${{ vars.RUNTIME_VALIDATION_REPORT_URL }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -930,6 +995,12 @@ jobs:
           pattern: VIP_*.tar.gz
           path: release-assets
           merge-multiple: true
+
+      - name: Download combined SPDX SBOM
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: VIP_All_Modules.spdx.json
+          path: release-assets
 
       - name: Validate release inputs
         run: |
@@ -950,8 +1021,14 @@ jobs:
               raise SystemExit(f"Expected 37 tar.gz assets, found {len(actual)}")
           if Path("release-assets/Modules_Build_Info.zip").exists():
               raise SystemExit("Modules_Build_Info.zip must not be a release input")
+          sbom = Path("release-assets/VIP_All_Modules.spdx.json")
+          if not sbom.is_file():
+              raise SystemExit("VIP_All_Modules.spdx.json is missing")
           print("Validated 35 module archives and both combined archive names")
           PY
+          python3 .github/scripts/verify_spdx_subject.py \
+            --archive release-assets/VIP_All_Modules.tar.gz \
+            --sbom release-assets/VIP_All_Modules.spdx.json
 
       - name: Check current branch tip
         id: branch-tip
@@ -975,10 +1052,32 @@ jobs:
           fi
           test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$RELEASE_TAG" --jq '.object.sha')" = "$GITHUB_SHA"
 
+      - name: Attest release archive provenance
+        if: steps.branch-tip.outputs.stale != 'true'
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: release-assets/*.tar.gz
+
+      - name: Attest combined archive SBOM
+        if: steps.branch-tip.outputs.stale != 'true'
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: release-assets/VIP_All_Modules.tar.gz
+          sbom-path: release-assets/VIP_All_Modules.spdx.json
+
+      - name: Attest SPDX document provenance
+        if: steps.branch-tip.outputs.stale != 'true'
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4.2.1
+        with:
+          subject-path: release-assets/VIP_All_Modules.spdx.json
+
       - name: Create or update release
         if: steps.branch-tip.outputs.stale != 'true'
         run: |
           notes=$'Automated release from '"$GITHUB_REF_NAME"$'.\n\nCommit: '"$GITHUB_SHA"$'\nWorkflow run: https://github.com/'"$GITHUB_REPOSITORY"'/actions/runs/'"$GITHUB_RUN_ID"
+          if [[ "$IS_PRERELEASE" != "true" ]]; then
+            notes+=$'\nRuntime validation: '"$RUNTIME_VALIDATION_REPORT_URL"
+          fi
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release edit "$RELEASE_TAG" \
               --repo "$GITHUB_REPOSITORY" \
@@ -1007,11 +1106,14 @@ jobs:
           for asset in release-assets/*.tar.gz; do
             gh release upload "$RELEASE_TAG" "$asset"               --repo "$GITHUB_REPOSITORY"               --clobber
           done
+          gh release upload "$RELEASE_TAG" release-assets/VIP_All_Modules.spdx.json \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
 
       - name: Verify release assets
         if: steps.branch-tip.outputs.stale != 'true'
         run: |
-          mapfile -t expected < <(find release-assets -maxdepth 1 -type f -name '*.tar.gz' -printf '%f\n' | sort)
+          mapfile -t expected < <(find release-assets -maxdepth 1 -type f \( -name '*.tar.gz' -o -name '*.spdx.json' \) -printf '%f\n' | sort)
           mapfile -t actual < <(gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' | sort)
           if [[ "${expected[*]}" != "${actual[*]}" ]]; then
             echo "Expected release assets:"
@@ -1024,5 +1126,10 @@ jobs:
             echo "Modules_Build_Info.zip must not be published"
             exit 1
           fi
-          test "${#actual[@]}" -eq 37
-          echo "Release contains exactly 37 tar.gz assets, including the legacy combined archive alias."
+          test "${#actual[@]}" -eq 38
+          gh attestation verify release-assets/VIP_All_Modules.tar.gz --repo "$GITHUB_REPOSITORY"
+          gh attestation verify release-assets/VIP_All_Modules.spdx.json --repo "$GITHUB_REPOSITORY"
+          python3 .github/scripts/verify_spdx_subject.py \
+            --archive release-assets/VIP_All_Modules.tar.gz \
+            --sbom release-assets/VIP_All_Modules.spdx.json
+          echo "Release contains 37 tar.gz assets and the combined SPDX SBOM."
