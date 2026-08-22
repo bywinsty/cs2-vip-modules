@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Show Damage](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_ShowDamage)
+# [VIP] [Show Damage](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_ShowDamage)
 
 ## Дозволяє VIP-гравцям бачити інформацію про завдану шкоду.
 

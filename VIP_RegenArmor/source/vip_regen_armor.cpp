@@ -214,7 +214,7 @@ const char *vip_regen_armor::GetVersion()
 
 const char *vip_regen_armor::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_regen_armor::GetLogTag()

@@ -12,7 +12,7 @@
 #include "CCSPlayerController.h"
 #include "CBaseGrenade.h"
 #include "iserver.h"
-#include "include/vip.h"
+#include "vip.h"
 #include "include/menus.h"
 #include <string>
 #include <ctime>

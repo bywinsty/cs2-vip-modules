@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Test](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Test)
+# [VIP] [Test](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Test)
 
 ## Дозволяє гравцям тимчасово випробувати VIP-можливості.
 

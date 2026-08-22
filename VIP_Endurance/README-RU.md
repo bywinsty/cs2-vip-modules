@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Endurance](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Endurance)
+# [VIP] [Endurance](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Endurance)
 
 ## При стрельбе по VIP-игроку он не замедляется.
 

@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [No Fall Damage](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_NoFallDamage)
+# [VIP] [No Fall Damage](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_NoFallDamage)
 
 ## Дозволяє VIP-гравцям вимкнути шкоду від падіння.
 

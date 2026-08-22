@@ -197,7 +197,7 @@ const char *vip_regen_hp::GetVersion()
 
 const char *vip_regen_hp::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_regen_hp::GetLogTag()

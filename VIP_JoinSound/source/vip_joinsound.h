@@ -10,7 +10,7 @@
 #include <entity2/entitysystem.h>
 #include "CCSPlayerController.h"
 #include "iserver.h"
-#include "include/vip.h"
+#include "vip.h"
 #include "include/menus.h"
 #include <ctime>
 
@@ -36,4 +36,4 @@ extern VIPJoinSound g_VIPJoinSound;
 
 PLUGIN_GLOBALVARS();
 
-#endif 
+#endif

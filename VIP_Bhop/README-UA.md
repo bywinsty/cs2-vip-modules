@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Bhop](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Bhop)
+# [VIP] [Bhop](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Bhop)
 
 ## Додає VIP-гравцям можливість використовувати bhop.
 

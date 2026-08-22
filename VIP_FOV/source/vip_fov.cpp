@@ -30,7 +30,7 @@ bool VIPFov::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool l
 
 bool VIPFov::Unload(char *error, size_t maxlen)
 {
-	delete g_pVIPCore;
+	g_pVIPCore = nullptr;
 	return true;
 }
 
@@ -156,7 +156,7 @@ const char *VIPFov::GetVersion()
 
 const char *VIPFov::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *VIPFov::GetLogTag()

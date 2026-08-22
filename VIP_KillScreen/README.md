@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [KillScreen](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_KillScreen)
+# [VIP] [KillScreen](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_KillScreen)
 
 ## Shows a colored kill effect to a VIP attacker when they kill another player.
 

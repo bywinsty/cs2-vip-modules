@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [FOV](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_FOV)
+# [VIP] [FOV](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_FOV)
 
 ## Позволяет VIP-игрокам изменять поле зрения.
 

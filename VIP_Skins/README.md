@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Skins](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Skins)
+# [VIP] [Skins](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Skins)
 
 ## Allows VIP players to select a model from a configured skin list. The selected skin is persisted in a VIP cookie and reapplied on spawn.
 

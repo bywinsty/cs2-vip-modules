@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Teammates Heal](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_TeammatesHeal)
+# [VIP] [Teammates Heal](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_TeammatesHeal)
 
 ## Heals a teammate when a VIP damages them with a non-blacklisted weapon.
 

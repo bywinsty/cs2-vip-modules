@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Teammates Heal](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_TeammatesHeal)
+# [VIP] [Teammates Heal](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_TeammatesHeal)
 
 ## Восстанавливает здоровье напарника, когда VIP наносит ему урон оружием, не внесённым в чёрный список.
 

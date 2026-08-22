@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Gravity](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Gravity)
+# [VIP] [Gravity](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Gravity)
 
 ## Дозволяє VIP-гравцям змінювати рівень гравітації. Допустимий діапазон — від `0.1` до `2.0`; стандартне значення — `1.0`.
 

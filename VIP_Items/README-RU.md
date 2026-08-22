@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Items](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Items)
+# [VIP] [Items](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Items)
 
 ## Выдаёт VIP-игрокам настроенные предметы при появлении после заданного раунда.
 

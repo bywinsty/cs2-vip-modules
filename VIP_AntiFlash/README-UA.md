@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [AntiFlash](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_AntiFlash)
+# [VIP] [AntiFlash](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_AntiFlash)
 
 ## Додає VIP-гравцям можливість не засліплюватися від гранат
 

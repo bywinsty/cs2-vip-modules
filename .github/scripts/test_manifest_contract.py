@@ -21,6 +21,10 @@ class ManifestContractTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.package = {
+            "module_dir": "VIP_Test",
+            "build_root": "VIP_Test/source",
+            "plugin_name": "test",
+            "plugin_alias": "test",
             "files": ["addons/test.so", "addons/test.vdf"],
             "binary": "addons/test.so",
             "vdf": "addons/test.vdf",
@@ -31,6 +35,10 @@ class ManifestContractTests(unittest.TestCase):
 
     def test_contract_counts_are_derived(self):
         path = self.write_manifest({"VIP_Test": self.package, "VIP_Other": self.package | {
+            "module_dir": "VIP_Other",
+            "build_root": "VIP_Other/source",
+            "plugin_name": "other",
+            "plugin_alias": "other",
             "files": ["addons/other.so", "addons/other.vdf"],
             "binary": "addons/other.so",
             "vdf": "addons/other.vdf",

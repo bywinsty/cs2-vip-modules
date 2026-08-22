@@ -1,6 +1,6 @@
 [EN](README.md) | [UA](README-UA.md)
 
-# [VIP] [Penis](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Penis)
+# [VIP] [Penis](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Penis)
 
 ## Добавляет модель в область паха VIP-игрока.
 

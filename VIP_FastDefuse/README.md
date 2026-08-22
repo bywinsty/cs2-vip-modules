@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Fast Defuse](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_FastDefuse)
+# [VIP] [Fast Defuse](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_FastDefuse)
 
 ## Adds the ability for VIP players to defuse a bomb faster
 

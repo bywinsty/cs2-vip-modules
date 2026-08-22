@@ -27,8 +27,8 @@ bool vip_fp::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool l
 
 bool vip_fp::Unload(char *error, size_t maxlen)
 {
-	delete g_pVIPCore;
-	delete g_pUtils;
+	g_pVIPCore = nullptr;
+	g_pUtils = nullptr;
 	return true;
 }
 
@@ -104,7 +104,7 @@ const char *vip_fp::GetVersion()
 
 const char *vip_fp::GetDate()
 {
-	return __DATE__;
+	return VIP_BUILD_DATE;
 }
 
 const char *vip_fp::GetLogTag()

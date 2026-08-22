@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Buy an Opposing Team's Weapon](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_BuyTeamWeapon)
+# [VIP] [Buy an Opposing Team's Weapon](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_BuyTeamWeapon)
 
 ## Дозволяє VIP-гравцям купувати зброю, яка зазвичай доступна лише протилежній команді.
 

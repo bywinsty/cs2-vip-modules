@@ -10,7 +10,7 @@
 #include "iserver.h"
 class CCSGameRules;
 #include "include/menus.h"
-#include "include/vip.h"
+#include "vip.h"
 #include <string>
 #include <ctime>
 

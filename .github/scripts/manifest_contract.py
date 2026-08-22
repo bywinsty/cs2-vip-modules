@@ -16,6 +16,9 @@ def load_contract(path):
     package_files = {}
     all_files = []
     for module, package in sorted(packages.items()):
+        for field in ("module_dir", "build_root", "plugin_name", "plugin_alias"):
+            if not isinstance(package.get(field), str) or not package[field]:
+                raise ValueError(f"{module}: {field} must be a non-empty string")
         files = package.get("files")
         binary = package.get("binary")
         vdf = package.get("vdf")
@@ -25,6 +28,10 @@ def load_contract(path):
             raise ValueError(f"{module}: duplicate package file paths")
         if binary not in files or vdf not in files:
             raise ValueError(f"{module}: binary and vdf must be listed in files")
+        if Path(binary).stem != package["plugin_name"]:
+            raise ValueError(f"{module}: plugin_name does not match binary")
+        if Path(vdf).stem != package["plugin_alias"]:
+            raise ValueError(f"{module}: plugin_alias does not match vdf")
         package_files[module] = tuple(files)
         all_files.extend(files)
 

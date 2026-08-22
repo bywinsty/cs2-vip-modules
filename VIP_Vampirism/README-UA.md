@@ -1,6 +1,6 @@
 [EN](README.md) | [RU](README-RU.md)
 
-# [VIP] [Vampirism](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Vampirism)
+# [VIP] [Vampirism](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Vampirism)
 
 ## Відновлює здоров’я VIP-гравця залежно від шкоди, завданої ворогам.
 

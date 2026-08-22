@@ -1,6 +1,6 @@
 [UA](README-UA.md) | [RU](README-RU.md)
 
-# [VIP] [Items](https://github.com/bywinsty/cs2-vip-modules/tree/main/VIP_Items)
+# [VIP] [Items](https://github.com/bywinsty/cs2-vip-modules/tree/Modules/VIP_Items)
 
 ## Gives VIP players the configured items on spawn after the configured round threshold.
 
